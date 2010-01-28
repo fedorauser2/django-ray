@@ -1,0 +1,19 @@
+<html>
+<title> Welcome </title>
+<body>
+
+{% for object in object_list %}
+<h1> <a href="{{object.get_absolute_url}}"> {{ object.title }} </a> </h1>
+<p> {{ object.body }} </p>
+
+<p>Tags:
+	{% for tag in object.tags.all %}
+	<a href="{{tag.get_absolute_url}}">{{ tag.name }} </li>
+	{% endfor %}
+</p>
+
+</hr>
+{% endfor %}
+
+</body>
+</html>

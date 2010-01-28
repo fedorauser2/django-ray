@@ -1,0 +1,10 @@
+<html>
+<title> Welcome to {{site.name}}</title>
+<body>
+
+{% for object in object_list %}
+<h1> <a href="{{object.get_absolute_url}}"> {{ object.title }} </a> </h1>
+{% endfor %}
+
+</body>
+</html>

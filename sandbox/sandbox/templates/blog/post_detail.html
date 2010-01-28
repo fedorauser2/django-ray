@@ -1,0 +1,39 @@
+{% extends "blog/base_posts.html" %}
+{% block title %}{{ object.title }}{% endblock %}
+{% block content %}
+
+<h2>{{ object.title }}</h2>
+{{ object.body_html|safe }}
+
+<p>Tags:
+	{% for tag in object.tags.all %}
+	<a href="{{tag.get_absolute_url}}">{{ tag.name }} </a>
+	{% endfor %}
+</p>
+
+{% load comments %}
+<h4>Comments</h4>
+
+    {% get_comment_list for object as comment_list %}
+    {% for comment in comment_list %}
+    
+    {% if comment.user_url %}
+		<a href="{{comment.user_url}}"> <b> {{ comment.user_name }} </b> </a>
+	{% else %}
+		{% if comment.user_name %}
+			<b> {{ comment.user_name }} </b>
+		{% else %}
+			<b> Anonymous </b>
+		{% endif %}
+	{% endif %}
+	
+	<h5>{{ comment.submit_date|date:"F j, Y" }}</h5>
+    <p> {{ comment.comment }} </p>
+    
+    {% endfor %}
+        
+<h4>Post a comment</h4>
+
+{% render_comment_form for object %}
+
+{% endblock %}
