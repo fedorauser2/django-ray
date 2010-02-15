@@ -1,3 +1,18 @@
 {% extends "blog/base.html" %}
-{% block title %}| Posts {% endblock %}
-{% block bodyclass %}posts{% endblock %}
+
+<h1>PLAIN HTML</h1>
+
+<h2>{% block title %}| Posts {% endblock %}</h2>
+
+{# single line comment #}
+
+<p>
+    {{ body|linebreaks }}
+</p>
+
+
+{% comment %} 
+multi-lines comment 
+
+:p
+{% endcomment %}

@@ -5,8 +5,11 @@ from django.conf.urls.defaults import *
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Example:
-    # (r'^sandbox/', include('sandbox.foo.urls')),
+
+    (r'^ray/', include('ray.urls')),
+    url(r'^media/(.*)$', 'django.views.static.serve', {
+        'document_root': '/home/h3/www/django-ray-sandbox/contrib/ray/media',
+    }),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
