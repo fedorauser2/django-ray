@@ -4,6 +4,8 @@
 
 This will serve as a general plan for developers wishing to join in or already working on the project.
 
+Learning from the past: http://faassen.n--tree.net/blog/view/weblog/2008/09/19/0
+
 = Overview =
 
 || *Milestone* || *Description* ||
