@@ -22,7 +22,20 @@ Learning from the past: http://faassen.n--tree.net/blog/view/weblog/2008/09/19/0
 || *2.0* || Concurrent editing support ? Support for other editors (ex: Bespin) ? ||
 || *2.+* || On site template block editing ? ||
 
-= 0.2 = 
+== Feature ideas (brainstorm) ==
+
+ * *console*: Command line console
+ * *image editor*: Simple operations like crop/resize etc..
+ * *object explorer*: Explore template objects (how??)
+ * *auto links*: Clickable path links (ex: clicking on base.html in  "{% extends "base.html" %}" would try to open it in editor.
+ * *concurrent editing*: Like Google does with Wave and Docs (improbable)
+ * *on site block editing*: When a administrator would navigate the website, some template magic would allow him to click on template blocks and edit them live on the site (most likely in a windowed editor).
+ * *commit notification*: Setup and manage notification by email of commits
+
+
+= Detailed road map =
+
+== 0.2 ==
 
 In this version the focus will be to make the file browser secure and usable. It must also provide a clear and stable API and events to other plugins (ex; file open, rename, move, etc..).
 
