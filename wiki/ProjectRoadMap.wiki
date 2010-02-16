@@ -1,3 +1,5 @@
+#summary Short and long term project development road map
+
 = Introduction =
 
 This will serve as a general plan for developers wishing to join in or already working on the project.
