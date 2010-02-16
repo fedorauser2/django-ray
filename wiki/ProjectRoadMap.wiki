@@ -11,7 +11,7 @@ Learning from the past: http://faassen.n--tree.net/blog/view/weblog/2008/09/19/0
 || *Milestone* || *Description* ||
 || *0.1* (Mess Around) || First working state (now) ||
 || *0.2* || File Browser ||
-|| *0.3* || Code editor ||
+|| *0.3* || Code editor, Image editor ||
 || *0.4* || Workspace ||
 || *0.5* || Configuration panel ||
 || *0.6* || Search & replace & other pluggable features ||
@@ -24,7 +24,7 @@ Learning from the past: http://faassen.n--tree.net/blog/view/weblog/2008/09/19/0
 == Feature ideas (brainstorm) ==
 
  * *console*: Command line console
- * *image editor*: Simple operations like crop/resize etc..
+ * *image editor*: http://www.pixlr.com/editor/
  * *object explorer*: Explore template objects (how??)
  * *auto links*: Clickable path links (ex: clicking on base.html in  "{% extends "base.html" %}" would try to open it in editor.
  * *concurrent editing*: Like Google does with Wave and Docs (improbable)
