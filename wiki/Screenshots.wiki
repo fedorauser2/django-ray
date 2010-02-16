@@ -1,3 +1,5 @@
+#summary Screenshots of the beast
+
 == Dark color scheme ==
 
 !http://i.imgur.com/MCdvH.png
