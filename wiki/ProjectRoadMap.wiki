@@ -19,8 +19,7 @@ Learning from the past: http://faassen.n--tree.net/blog/view/weblog/2008/09/19/0
 || *0.8* || Integrated diff support ||
 || *0.9* || Django Syntax highlight ||
 || *1.0* (Sun Shine) || First stable release ||
-|| *2.0* || Concurrent editing support ? Support for other editors (ex: Bespin) ? ||
-|| *2.+* || On site template block editing ? ||
+
 
 == Feature ideas (brainstorm) ==
 
@@ -31,6 +30,7 @@ Learning from the past: http://faassen.n--tree.net/blog/view/weblog/2008/09/19/0
  * *concurrent editing*: Like Google does with Wave and Docs (improbable)
  * *on site block editing*: When a administrator would navigate the website, some template magic would allow him to click on template blocks and edit them live on the site (most likely in a windowed editor).
  * *commit notification*: Setup and manage notification by email of commits
+ * *multiple editors*: Support for multiple editors (like Bespin)
 
 
 = Detailed road map =
