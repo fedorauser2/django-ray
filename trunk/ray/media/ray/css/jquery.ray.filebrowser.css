@@ -1,0 +1,118 @@
+.ui-ray-filebrowser-wrapper {
+    width:20%;
+    border:1px solid #ccc;
+    background:#fff;
+    float:left;
+}
+.ui-ray-filebrowser-list {
+    margin:0;
+    padding:0;
+}
+.ui-ray-filebrowser-list li {
+    border-bottom:1px solid #eee;
+}
+
+.ui-ray-filebrowser-list li a {
+    display:block;
+    font-size:12px;
+    padding:4px 10px 4px 30px;
+    color:#333;
+    text-decoration:none;
+    background-color:#fff;
+    background-repeat: no-repeat;
+    background-position: 8px 50%;
+}
+
+.ui-ray-filebrowser-list li a:hover {
+    background-color:#f4f4f4;
+    color:#111;
+}
+
+.ui-ray-filebrowser-list li a.selected {
+    color:#269!important;
+}
+
+.ui-ray-filebrowser-list li a.opened {
+    color:#177D19!important;
+}
+
+.ui-ray-filebrowser-file a {
+    background-image: url(../img/page_white_text.png);
+}
+
+.ui-ray-filebrowser-dir a {
+    background-image: url(../img/folder.png);
+}
+
+.ui-ray-filebrowser-dir a.opened {
+    background-color:#ffe; 
+    background-image: url(../img/folder_open.png);
+    
+}
+
+.ui-ray-filebrowser-breadcrumbs {
+    margin:0;
+    padding:0;
+    background:#eee;
+    border-border:1px solid #ddd;
+    height:27px;
+}
+.ui-ray-filebrowser-breadcrumbs li {
+    float:left;
+    list-style:none;
+    margin:1px 0;
+}
+.ui-ray-filebrowser-breadcrumbs li a {
+    background:#ddd;
+    display:block;
+    font-size:11px;
+    padding:0px 6px;
+    margin:1px 0 0 1px;
+    text-decoration:none;
+    color:#444;
+    border-left:1px solid #ccc;
+    height:22px;
+    -moz-border-radius:4px 0px 4px 0px!important;
+}
+.ui-ray-filebrowser-breadcrumbs .ui-button-text-only .ui-button-text {
+    padding:0.3em 0;
+} 
+.ui-ray-filebrowser-breadcrumbs li a span.ui-icon {
+    position:relative;
+    top:0px;
+}
+.ui-ray-filebrowser-breadcrumbs li a:hover {
+    background:#dfdfdf;
+    color:#111;
+}
+
+/* Generic file icons */
+
+
+/* Specific file icons */
+a.file.mp3, 
+a.file.wav  { background:transparent url(/media/ray/fileicons/document_music.png) no-repeat 8px 50%; }
+a.file.xls  { background:transparent url(/media/ray/fileicons/page_excel.png) no-repeat 8px 50%; }
+a.file.pdf  { background:transparent url(/media/ray/fileicons/page_white_acrobat.png) no-repeat 8px 50%; }
+a.file.js   { background:transparent url(/media/ray/fileicons/script_code.png) no-repeat 8px 50%; }
+a.file.as   { background:transparent url(/media/ray/fileicons/page_white_actionscript.png) no-repeat 8px 50%; }
+a.file.cfm  { background:transparent url(/media/ray/fileicons/page_white_coldfusion.png) no-repeat 8px 50%; }
+a.file.zip  { background:transparent url(/media/ray/fileicons/page_white_compressed.png) no-repeat 8px 50%; }
+a.file.sql  { background:transparent url(/media/ray/fileicons/page_white_database.png) no-repeat 8px 50%; }
+a.file.fh   { background:transparent url(/media/ray/fileicons/page_white_freehand.png) no-repeat 8px 50%; }
+a.file.php  { background:transparent url(/media/ray/fileicons/page_white_php.png) no-repeat 8px 50%; }
+a.file.ppt  { background:transparent url(/media/ray/fileicons/page_white_powerpoint.png) no-repeat 8px 50%; }
+a.file.rb   { background:transparent url(/media/ray/fileicons/page_white_ruby.png) no-repeat 8px 50%; }
+a.file.txt  { background:transparent url(/media/ray/fileicons/page_white_text.png) no-repeat 8px 50%; }
+a.file.sh   { background:transparent url(/media/ray/fileicons/script_code.png) no-repeat 8px 50%; }
+a.file.doc  { background:transparent url(/media/ray/fileicons/page_word.png) no-repeat 8px 50%; }
+a.file.py   { background:transparent url(/media/ray/fileicons/page_white_python.png) no-repeat 8px 50%; }
+a.file.ini, a.file.conf { background:transparent url(/media/ray/fileicons/page_white_wrench.png) no-repeat 8px 50%; }
+a.file.gz, a.file.rar,
+a.file.tar, a.file.jar,
+a.file.tgz, a.file.bz2  { background:transparent url(/media/ray/fileicons/page_white_zip.png) no-repeat 8px 50%; }
+a.file.htm, a.file.html { background:transparent url(/media/ray/fileicons/page_white_code.png) no-repeat 8px 50%; }
+a.file.ai, a.file.eps,
+a.file.cdr, a.file.svg  { background:transparent url(/media/ray/fileicons/page_white_vector.png) no-repeat 8px 50%; }
+a.file.jpg, a.file.gif,
+a.file.bmp, a.file.png  { background:transparent url(/media/ray/fileicons/page_white_picture.png) no-repeat 8px 50%; }

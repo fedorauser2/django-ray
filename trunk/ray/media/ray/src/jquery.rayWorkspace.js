@@ -1,44 +1,83 @@
-$.widget('ui.rayWorkspace', {
-    _init: function() {
-        var ui = this;
-        ui.dom = {
-            primary:   $('<div>head</div>'),
-            secondary: $('<div>body</div>'),
-        };
+$.widget('ui.rayWorkspace', $.extend($.ui.rayBase, {
+    options: {
+        defaultWorkspace: {
+            toolbar: [
+                {toggleButton: 'File Browser', id: "ray-filebrowser", callback: 'rayFilebrowser::browse', options: {
+                    icons: { primary: 'ui-icon-locked' }
+                }},
+                {spacer: true}
+            ],
+            workspace: [
+                {plugin: 'rayMirrorEditor::inLineEditor'},
+                {plugin: 'rayFileBrowser::fileManager', options: { position: 'left'}}
+            ]
+        }
+    },
 
-        ui.dom.primary.height(100).appendTo('body');
-        ui.dom.secondary.height(100).appendTo('body')
+    /* Create a workspace widget
+     * */
+    _workspace: function () {
+        return $('<div class="ray-workspace" />');
+     },
+
+    /* Create a toolbar widget
+     * */
+    _toolbar: function () {
+        return $('<span class="ui-widget-header ui-corner-all" style="padding:5px 4px;display:block;" />');
+     },
+
+    _createComponent: function(component) {
+        var ui  = this;
+        var map = {
+            button: '_button',
+            toggleButton: '_toggleButton',
+        }
+        for (var cpn in map) {
+            if (cpn.hasOwnProperty && component[cpn] && ui[map[cpn]]) {
+                var btn  = ui[map[cpn]].apply(this, [component]);
+                var clss = component.callback.split('::')[0];
+                var mthd = component.callback.split('::')[1];
+                console.log('<<<<<<<<<', btn);
+                return btn.find('span')
+                        .bind('click.rayWorkspace', function(){
+                              return $('body')[clss](mthd);
+                        }).end();
+            }
+        }
+    },
+
+    _createWorkspace: function(ns, components) {
+        var ui = this;
+        var ws = ui['_'+ns].call();
+
+        for (var x in components) {
+            if (x.hasOwnProperty) {
+                var cpn = ui._createComponent(components[x]);
+                if (cpn && cpn.appendTo) {
+                    cpn.appendTo(ws);
+                }
+            }
+        }
+
+        return ws;
+    },
+
+    _create: function() {
+        var ui = this;
+        ui.dom = {};
+        console.log('test...')
+
+        for (var ws in ui.options.defaultWorkspace) {
+            if (ws.hasOwnProperty) {
+                ui.dom[ws] = ui._createWorkspace(ws, ui.options.defaultWorkspace[ws])
+                                .appendTo('body');
+            }
+        }
 
         var h = window.innerHeight;
         var w = window.innerWidth;
-        $('body').splitter({
-            type: 'h',
-            minBottom: 150,
-            resizeToWidth: true,
-        })
-        /*
-        ui.instance = ui.dom.body.layout({
-            defaults: {
-                fxName: "none",
-            },
-            north: {
-                size: '50%'
-            },
-            south:{
-                size: '50%'
-                //size: h - ((h * 1.61803399) - h),
-            }
-//          north: {
-//              resizable: false,
-//              closable: true, 
-//              size:56,
-//              spacing_open: 0
-//          }
-        });
-        */
-        
-     },
-
+    },
+/*
     load: function (ws, content) {
         var ui = this;
         if ($.isArray(content)) {
@@ -50,87 +89,14 @@ $.widget('ui.rayWorkspace', {
             ui.dom[ws].html(content);
         }
     },
-
-    get: function(k) {
-         try {
-             return this.instance[k];
-         }
-         catch (e) {
-             return false;
-         };
-    },
-
-    getPane: function(ws) {
+*/
+    get: function(ws) {
+        var ui = this;
         try {
-            return this.dom[ws];
+            return ui.dom[ws];
         }
         catch (e) {
-            return false;
-        }
-    },
-
-    exec: function(cmd, arg) {
-        var ui = this;
-        return ui.instance[cmd](arg);
-    },
-
-    layout: function () {
-        if (arguments.length > 1) {
-            var pane = this.dom[arguments[0]];
-            $.each(arguments[1], function (){
-                pane.append(this);
-            });
-            pane.layout(arguments[2] || {});
+            return false
         }
     }
-
-});
-
-
-$.extend($.ui.rayWorkspace, {
-    getter: 'getWorkspace exec',
-    defaults: {
-        layouts: [],
-    },
-});
-
-$.ui.rayWorkspace.defaults.layouts.push({
-    title: 'One full screen pane',
-    icon:  'split-none.png',
-    template: [
-        '<div class="ui-ray-workspace">',
-            '<div class="ui-ray-workspace-window active"></div>',
-        '</div>',
-    ]
-});
-$.ui.rayWorkspace.defaults.layouts.push({
-    title: 'Two panes splitted horizontally',
-    template: [
-        '<div class="ui-ray-workspace">',
-            '<div class="ui-layout-west ui-ray-workspace-window active">West</div>',
-            '<div class="ui-layout-east ui-ray-workspace-window">East</div>',
-        '</div>',
-    ]
-});
-$.ui.rayWorkspace.defaults.layouts.push({
-    title: 'Two panes splitted vertically',
-    template: [
-        '<div class="ui-ray-workspace">',
-            '<div class="ui-layout-north ui-ray-workspace-window active">North</div>',
-            '<div class="ui-layout-south ui-ray-workspace-window">South</div>',
-        '</div>',
-    ]
-});
-$.ui.rayWorkspace.defaults.layouts.push({
-    title: 'Four panes quadrant',
-    template: [
-        '<div class="ui-ray-workspace">',
-            '<div class="ui-layout-north ui-ray-workspace-window active">North</div>',
-            '<div class="ui-layout-east ui-ray-workspace-window">East</div>',
-            '<div class="ui-layout-south ui-ray-workspace-window">South</div>',
-            '<div class="ui-layout-west ui-ray-workspace-window">West</div>',
-        '</div>',
-    ]
-});
-
-
+}));

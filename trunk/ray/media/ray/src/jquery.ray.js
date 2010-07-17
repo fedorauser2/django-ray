@@ -19,6 +19,34 @@ $.plugin = function(namespace, instance) {
 }
 
 $.ui.rayBase = {
+    
+    /*  Mixes tightly and loosely coupled patterns for
+     *  greater interpolability between ray plugins. 
+     *
+     *  Ex:
+     *  -- widget --
+     *  _change: function() {
+     *      console.log('I will get called first');
+     *  }
+     *  -- /widget --
+     *  or 
+     *  -- anywhere --
+     *  ui.element.bind('changewidgetname', function(e, data){
+     *      console.log('I will get called in second');
+     *  });
+     *  -- /anywhere --
+     *
+     *  ui._callback('change', [data]);
+     *
+     * */
+    _callback: function(cb, data) {
+        var ui = this;
+        var callback = ui['_'+cb];
+        if (callback && $.isFunction(callback)) {
+            callback.apply(ui, data || []);
+        }
+        ui._trigger(ui.widgetName.toLowerCase() + cb, 0, [cb +' test'])
+    },
 
     /* Initialiaze all plugins. This can be confusing at first
      * since it's almost recursive .. ray has plugins like rayFilebrowser,
@@ -30,12 +58,18 @@ $.ui.rayBase = {
         var widget, plugin, wn, wdg, opt;
         wn = widgetName || ui.widgetName;
         widget = jQuery[ui.namespace][wn];
+        //console.log('plugin_init', widget.plugins);
         for (var x in widget.plugins) {
             plugin = widget.plugins[x];
             opt = $.extend((this.options[plugin] || {}), {widget: this});
             wdg = (wn != 'ray') && this.widgetName +'_'+ plugin || plugin.split(':')[0];
-            $(ui.element)[wdg](opt);
-            $(ui.element)[wdg]('plugin_init');
+            try {
+                $('body')[wdg](opt);
+                $('body')[wdg]('plugin_init');
+            }
+            catch (e) {
+                throw('Failed to initialize '+ wdg + '" - '+ e.name +': '+ e.message +' - File: '+ e.fileName +':'+ e.lineNumber);
+            }
         }
     },
 
@@ -55,10 +89,15 @@ $.ui.rayBase = {
 
     /* Create a button widget
      * */
-    _button: function (id, label, icon, corner) {
-        return $('<button id="'+ id +'" class="ui-button ui-widget ui-state-default ui-button-icon-only ui-corner-'+ (corner || 'all') +'" role="button" title="'+ label +'">'+
-                    '<span class="ui-button-icon-primary ui-icon ui-icon-'+ icon +'"></span><span class="ui-button-text">'+ label +'</span>'+
-                '</button>').button();
+    _button: function (btn) {
+        return $('<button id="'+ btn.id +'">'+ btn.button +'</button>').button(btn.options || {});
+     },
+
+
+    /* Create a button widget
+     * */
+    _toggleButton: function (btn) {
+        return $('<input type="checkbox" id="'+ btn.id +'" /><label for="'+ btn.id +'">'+ btn.toggleButton +'</label>').button(btn.options || {});
      },
              
     //<button class="{button:{icons:{primary:'ui-icon-gear',secondary:'ui-icon-triangle-1-s'}}} ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icons" role="button"><span class="ui-button-icon-primary ui-icon ui-icon-gear"></span><span class="ui-button-text">Button with two icons</span><span class="ui-button-icon-secondary ui-icon ui-icon-triangle-1-s"></span></button>
@@ -143,12 +182,16 @@ if ( typeof console !== 'undefined' && typeof console.log !== 'undefined') {
 }
 
 $.widget('ui.ray', $.extend($.ui.rayBase, {
+    options: {
+        base_url: '/ray/',
+        debug:    true,
+    },
     
     // Allow each plugins to specify which file type they support
     // and how to handle them
     _file_types: {},
 
-    _init: function () {
+    _create: function () {
         var ui = this;
         
         ui.options = $.extend($.ui.ray.defaults, ui.options);
@@ -229,14 +272,10 @@ $.widget('ui.ray', $.extend($.ui.rayBase, {
 
 
 $.extend($.ui.ray, {
-    defaults: {
-        base_url: '/ray/',
-        debug:    false,
-    },
     // List of plugins (ex: "ns:rayPluginName<:lazy>", where ns refers to the namespace)
     // Lazy means that the plugin is not initialized upon initial load.
     // ORDER DOES MATTER
-    plugins: ['rayWorkspace', ]//'rayFilebrowser', 'rayMirrorEditor'],//, 'rayPixlr'],
+    plugins: ['rayFilebrowser', 'rayMirrorEditor']//],//, 'rayPixlr'],
 });
 
 $(function(){

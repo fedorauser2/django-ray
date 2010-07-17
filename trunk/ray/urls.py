@@ -13,6 +13,6 @@ urlpatterns = patterns('',
     url(r'^context/$',      'ray.views.ray_context',    name='ray-context'),
     url(r'^svn/log/$',      'ray.views.ray_svn_log',    name='ray-svn-log'),
     # TODO: find a less hacking way ..
-    url(r'^media/(.*)$', 'django.views.static.serve', {'document_root': '/home/h3/www/django-ray-sandbox/sandbox/templates/', 'show_indexes': True}),
+    url(r'^media/(.*)$', 'django.views.static.serve', {'document_root': '/home/h3/www/django-ray/sandbox/templates/', 'show_indexes': True}),
 ) 
 

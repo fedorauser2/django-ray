@@ -5,7 +5,6 @@ html {
 body {
     margin:0;
     padding:0!important;
-    font-size:62.5%;
     background:#c4c;
     height:100%;
     background:#ddd;
@@ -55,62 +54,7 @@ iframe {
 /* good */
 
 
-/* Buffers */
-.ui-ray-titlebar {
-    background:none repeat scroll 0 0 #555;
-    color:#ddd;
-    font-size:12px;
-    padding:4px 6px;
-    font-weight:bold;
-    font-family: Verdana,Arial,sans-serif; 
-    height:15px;
-}
-.ui-ray-toolbar {
-    padding:4px 4px!important;
-}
-.ui-ray-toolbar .ui-button {
-    height:22px!important;
-}
-.ui-ray-toolbar .ui-button-text {
-    height:22px!important;
-}
 
-/* Settings */
-.ui-ray-settings {
-    background:none repeat scroll 0 0 #ddd;
-    border-bottom:1px solid #bbb;
-    position:absolute;
-    top:55px;
-    width:100%;
-    z-index:1000;
-}
-.ui-ray-form {
-    min-height:30px;
-    margin:0;
-    padding:0;
-}
-.ui-ray-form li {
-    list-style:none;
-    float:left;
-    padding:0 10px 8px 10px;
-    border-right:1px solid #ccc;
-    border-left:1px solid #eee;
-}
-.ui-ray-form li:last-child {
-    border-right:0;
-}
-
-
-.ui-ray-form li input[type=checkbox] {
-    margin:5px 2px 0;
-    position:relative;
-    top:3px;
-}
-
-
-.ui-ray-buffer-selector {
-    margin-right:8px;
-}
 
 
 
@@ -157,35 +101,8 @@ dl a {
 .ui-ray-svn-log a {
     color:#269!important;
 }
-#ui-rayFilebrowser-context-tabs .ui-tabs-panel {
-    overflow-y:auto;
-}
 
 
-.CodeMirror-line-numbers  {
-    background:none repeat scroll 0 0 #F4F4F4;
-    border-right:1px solid #DDDDDD;
-    width:30px;
-}
-.CodeMirror-line-numbers div {
-    text-align:right;
-    font-size:10pt;
-    padding:0 5px 0 0;
-    font-family:monospace;
-}
-.editbox {
-    font-family:monospace;
-}
-.ui-ray-cursorinfo {
-    float:right;
-    color:#ddd;
-    padding:2px 10px;
-    font-size:150%;
-    font-family:Verdana, Arial, sans-serif;
-}
-.ui-ray-syntax-selector {
-    float:right;
-}
 
 .ui-layout-pane,
 .ui-layout-north,
@@ -250,44 +167,8 @@ dl a {
 }
 .ui-ray-filebrowser-context .ui-tabs-nav a {
     font-size:90%;
-
 }
 
-/* Generic file icons */
-
-a.file   { background:transparent url(/media/ray/img/page_white_text.png) no-repeat 8px 50%; }
-a.selected { color:#269!important; }
-a.file.opened   { color:#177D19!important; }
-a.dir    { background:transparent url(/media/ray/img/folder.png) no-repeat 8px 50%; }
-a.dir.opened { background:#ffe url(/media/ray/img/folder_open.png) no-repeat 8px 50%; }
-
-/* Specific file icons */
-a.file.mp3, 
-a.file.wav  { background:transparent url(/media/ray/fileicons/document_music.png) no-repeat 8px 50%; }
-a.file.xls  { background:transparent url(/media/ray/fileicons/page_excel.png) no-repeat 8px 50%; }
-a.file.pdf  { background:transparent url(/media/ray/fileicons/page_white_acrobat.png) no-repeat 8px 50%; }
-a.file.js   { background:transparent url(/media/ray/fileicons/script_code.png) no-repeat 8px 50%; }
-a.file.as   { background:transparent url(/media/ray/fileicons/page_white_actionscript.png) no-repeat 8px 50%; }
-a.file.cfm  { background:transparent url(/media/ray/fileicons/page_white_coldfusion.png) no-repeat 8px 50%; }
-a.file.zip  { background:transparent url(/media/ray/fileicons/page_white_compressed.png) no-repeat 8px 50%; }
-a.file.sql  { background:transparent url(/media/ray/fileicons/page_white_database.png) no-repeat 8px 50%; }
-a.file.fh   { background:transparent url(/media/ray/fileicons/page_white_freehand.png) no-repeat 8px 50%; }
-a.file.php  { background:transparent url(/media/ray/fileicons/page_white_php.png) no-repeat 8px 50%; }
-a.file.ppt  { background:transparent url(/media/ray/fileicons/page_white_powerpoint.png) no-repeat 8px 50%; }
-a.file.rb   { background:transparent url(/media/ray/fileicons/page_white_ruby.png) no-repeat 8px 50%; }
-a.file.txt  { background:transparent url(/media/ray/fileicons/page_white_text.png) no-repeat 8px 50%; }
-a.file.sh   { background:transparent url(/media/ray/fileicons/script_code.png) no-repeat 8px 50%; }
-a.file.doc  { background:transparent url(/media/ray/fileicons/page_word.png) no-repeat 8px 50%; }
-a.file.py   { background:transparent url(/media/ray/fileicons/page_white_python.png) no-repeat 8px 50%; }
-a.file.ini, a.file.conf { background:transparent url(/media/ray/fileicons/page_white_wrench.png) no-repeat 8px 50%; }
-a.file.gz, a.file.rar,
-a.file.tar, a.file.jar,
-a.file.tgz, a.file.bz2  { background:transparent url(/media/ray/fileicons/page_white_zip.png) no-repeat 8px 50%; }
-a.file.htm, a.file.html { background:transparent url(/media/ray/fileicons/page_white_code.png) no-repeat 8px 50%; }
-a.file.ai, a.file.eps,
-a.file.cdr, a.file.svg  { background:transparent url(/media/ray/fileicons/page_white_vector.png) no-repeat 8px 50%; }
-a.file.jpg, a.file.gif,
-a.file.bmp, a.file.png  { background:transparent url(/media/ray/fileicons/page_white_picture.png) no-repeat 8px 50%; }
 
 
 

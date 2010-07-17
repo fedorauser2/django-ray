@@ -1,11 +1,11 @@
-import os
-import time
-import json
+# -*- coding: utf-8 -*-
+
+import os, re, time, json
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 
-import settings
+from ray import settings
 
 def prettySize(size):
     '''
@@ -43,7 +43,7 @@ def ray_context(request):
     TODO: document
     '''
     if 'path' in request.GET:
-        path = os.path.join(settings.EDITABLE_TEMPLATE_DIR, get_secure_path(request.GET['path']))
+        path = os.path.join(settings.RAY_EDITABLE_DIRS[0], get_secure_path(request.GET['path']))
         info = os.stat(path)
         out = {
             'path': path,
@@ -62,8 +62,7 @@ def ray_open(request):
     TODO: document
     '''
     if 'path' in request.GET:
-        p    = request.GET['path']
-        path = os.path.join(settings.EDITABLE_TEMPLATE_DIR, p)
+        path = get_secure_path(request.GET['path'])
         fd   = open(path, 'r')
         buf  = fd.read()
         out  = {
@@ -77,12 +76,23 @@ def get_secure_path(p):
     '''
     TODO: replace gettho security
     '''
-    if p == '':
-        p = settings.EDITABLE_TEMPLATE_DIR
+
+    n = re.compile(r'^/(\d+):', re.IGNORECASE)
+    rs = n.search(p)
+    print 
+    if rs:
+        if p[-1:] == '/':
+            p = settings.RAY_EDITABLE_DIRS[int(rs.groups()[0])] + "/".join(p.split('/')[2:-1])
+        else:
+            p = settings.RAY_EDITABLE_DIRS[int(rs.groups()[0])] + "/".join(p.split('/')[2:])
+        return p.replace('../', '')
     else:
-        if p[0] == '/':
-            p = p[1:]
-    return p.replace('../', '')
+        return ''
+#   if p == '':
+#       p = settings.RAY_EDITABLE_DIRS[0]
+#   else:
+#       if p[0] == '/':
+#           p = p[1:]
 
 
 
@@ -90,18 +100,33 @@ def ray_browse(request):
     '''
     TODO: document, return also node permissions (to know if it's read/write)
     '''
-    if 'path' in request.GET:
+    dirs = []
+    files =  []
+    if 'path' in request.GET and request.GET['path'] not in ['','/']:
         base_path = request.GET['path']
-        path = os.path.join(settings.EDITABLE_TEMPLATE_DIR, get_secure_path(request.GET['path']))
+
+        full_path = get_secure_path(request.GET['path'])
+        path = request.GET['path']
+        dirs = [f for f in os.listdir(full_path) if os.path.isdir(os.path.join(full_path, f))  and f not in settings.EDITOR_IGNORE]
+        files = [f for f in os.listdir(full_path) if os.path.isfile(os.path.join(full_path, f)) and f not in settings.EDITOR_IGNORE]
     else:
         base_path = ''
-        path = settings.EDITABLE_TEMPLATE_DIR
+        path = ''
+        dirs = []
+        files = []
+        x = 0
+        for d in settings.RAY_EDITABLE_DIRS:
+            l = d[1:].split('/')
+            d = d.replace("%s/" % "/".join(l[:-2]), "%d:" % x)
+            x = x + 1
+            dirs.append(d[:-1])
+
 
     out = {
         'path':  path,
-        'base_path': base_path,
-        'dirs':  [f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))  and f not in settings.EDITOR_IGNORE],
-        'files': [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f not in settings.EDITOR_IGNORE],
+        'base_path':  base_path,
+        'dirs':  dirs,
+        'files': files,
     }
 
     
