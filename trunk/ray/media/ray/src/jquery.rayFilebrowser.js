@@ -1,29 +1,135 @@
 var RayFileBrowser = $.extend($.ui.rayBase, {
-    
-    _datasource: {
-        dirs: [], files: []
-    },
-
+    cwd: false,
     dom: {},
 
-
-
     options: {
+        hasFocus: false,
         change: function(e, data) {
             console.log('test3', e, data);
         },
     },
 
-    diropen: function(p, link) {
+    focus: function() {
         var ui = this;
-        ui._trigger('dirOpen', { path: '?path='+ p });
-        link.addClass('opened');
+        ui.options.hasFocus = true;      
+        $(window).unbind('keydown.rayFilebrowser')
+            .bind('keydown.rayFilebrowser', function(e){ 
+                ui._keyboardNav.apply(ui, [e]);
+            });
     },
 
+    blur: function() {
+        var ui = this;
+        ui.options.hasFocus = false;      
+        $('body').unbind('keydown.rayFilebrowser');
+    },
+
+    browse: function() {},
+
+    destroy: function() {
+        $.Widget.prototype.destroy.apply(this, arguments);
+    },
+    
     fileopen: function(p, link) {
         var ui = this;
         ui._trigger('fileOpen', { path: p });
         link.addClass('opened');
+    },
+
+    diropen: function(p, link) {
+        var ui = this;
+        ui._trigger('dirOpen', { path: '?path='+ p });
+        ui.cwd = p;
+        if (link) {
+            link.addClass('opened');
+        }
+    },
+
+
+    _keyboardNav: function(e) {
+        var ui = this;
+        var selected = function() {
+            return ui.dom.wrapper.find('.ui-ray-filebrowser-list li.selected');
+        };
+        if (ui.options.hasFocus) {
+            //console.log(e.keyCode);
+            switch(e.keyCode) {
+                
+                // Backspace
+                case 8: 
+                    if (ui.cwd) {
+                        var p = ui.cwd.split('/');
+                        if (p.length < 4) {
+                            var path = '';
+                        }
+                        else {
+                            var path = '/'+ p.slice(1, -2).join('/') + '/';
+                        }
+                        ui.diropen(path)
+                    }
+                break;
+
+                // Enter
+                case 13: 
+                    ui._command_callback.apply(selected().find('a'), [e, ui]); 
+                break;
+
+                // Up
+                case 38: 
+                    if (selected().is(':first-child')) {
+                        selected().removeClass('selected').parent().find('li:last-child').addClass('selected');
+                    }
+                    else {
+                        selected().removeClass('selected').prev().addClass('selected');
+                    }
+                break;
+
+                // Down
+                case 40: 
+                    if (selected().is(':last-child')) {
+                        selected().removeClass('selected').parent().find('li:first-child').addClass('selected');
+                    }
+                    else {
+                        selected().removeClass('selected').next().addClass('selected');
+                    }
+                break;
+            }
+        }
+    },
+
+    _create: function() {
+
+        var ui = this;
+
+        ui.dom.wrapper = $('<div class="ui-ray-filebrowser-wrapper" />')
+                            .bind('click.rayFilebrowser', function(){ ui.focus(); })
+                            .appendTo(ui.element);
+        
+      //$('body').bind('click.rayFilebrowser', function(e){
+      //    console.log(e, this);
+      //});
+
+        ui.element.bind('dirOpened.rayFilebrowser', function(e){
+            var rs, li, pane, list, path;
+            rs   = e.originalEvent.data.content;
+            if (rs) {
+                ui._datasource = rs;
+                ui._callback('redraw');
+            }
+        });
+        ui._trigger('dirOpen', { path: '?path=/' });
+        //ui.element.bind('rayfilebrowserchange', function() { console.log('test2'); });'body'
+
+        //ui._callback('change');
+        //ui.element.trigger('rayfilebrowserchange');
+        $(window).resize(function(){
+            ui._repaint.call(ui);
+        });
+
+    },
+    
+    _datasource: {
+        dirs: [], files: []
     },
 
     _build_file_list: function() {
@@ -53,20 +159,42 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         return o;
     },
 
-    _build_list: function(rs) {
+    /*  Builds the file/dir list from ui._datasource 
+     *  and binds the necessary events.
+     * */
+    _build_list: function() {
         var ui, d, f, o;
         ui = this;
         d = ui._build_dir_list(ui._datasource);
         f = ui._build_file_list(ui._datasource);
         o = $('<ul class="ui-ray-filebrowser-list">'+ d.join('') + f.join('') +'</ul>');
 
-        o.find('a').bind('click', function(e){ 
-            ui._command_callback.apply(this, [e, ui]); 
-        });
-
-        return o;
+        return o.find('a')
+                .bind('click', function(){
+                    $(this).parent().addClass('selected')
+                        .siblings().removeClass('selected');
+                })
+                .bind('dblclick', function(e){ 
+                    ui._command_callback.apply(this, [e, ui]); 
+                })
+                .first().click().end()
+            .end();
     },
 
+    /*  This methods interprets the commands specified in the
+     *  file list. Those commands use anchors with a specific
+     *  syntax, for example:
+     *
+     *  http://mysite.com/ray/editor/#diropen::/0:templates/
+     *  |                           | |     |   | |        |
+     *  +--+------------------------+ +--+--+   +-+---+----+
+     *     |                             |      |     |
+     *     Editor's URL               Command   | Arguments
+     *                                          |
+     *                                          + 
+     *   Note: the "0" in this example is represents the index 
+     *   of the target root directory in the settings.py file.
+     * */
     _command_callback: function(e, ui){
         var link, cmd, arg;
         link = $(this);
@@ -80,6 +208,8 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         }
     },
 
+    /* Builds the "breadcrumb" menu from ui._datasource.base_path
+     * */
     _build_breadcrumb: function() {
         var ui = this;
         var crumb = false;
@@ -104,15 +234,17 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         }
         o.push('</ul>');
 
-        return $(o.join('')).find('a').button().bind('click', function(e){ 
-            ui._command_callback.apply(this, [e, ui]); 
-        }).end();
+        return $(o.join('')).find('a')
+                    .button() 
+                    .bind('click', function(e){ 
+                        ui._command_callback.apply(this, [e, ui]); 
+                    }).end();
     },
 
     // data updated
     _redraw: function() {
         var ui = this;
-        ui.dom.wrapper.html(ui._build_breadcrumb()).append(ui._build_list());
+        ui.dom.wrapper.html(ui._build_breadcrumb()).append(ui._build_list()).click();
         ui._repaint();
     },
 
@@ -122,36 +254,6 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         ui.dom.wrapper.height(window.innerHeight - 2); 
     },
 
-    _create: function() {
-        var ui = this;
-
-        ui.dom.wrapper = $('<div class="ui-ray-filebrowser-wrapper" />')
-                            .appendTo(ui.element);
-
-
-        ui.element.bind('dirOpened.rayFilebrowser', function(e){
-            var rs, li, pane, list, path;
-            rs   = e.originalEvent.data.content;
-            if (rs) {
-                ui._datasource = rs;
-                ui._callback('redraw');
-            }
-        });
-        ui._trigger('dirOpen', { path: '?path=/' });
-        //ui.element.bind('rayfilebrowserchange', function() { console.log('test2'); });
-
-        //ui._callback('change');
-        //ui.element.trigger('rayfilebrowserchange');
-        $(window).resize(function(){
-            ui._repaint.call(ui);
-        });
-
-    },
-    browse: function() {},
-
-    destroy: function() {
-        $.Widget.prototype.destroy.apply(this, arguments);
-    }
 });
 
 $.widget('ui.rayFilebrowser', RayFileBrowser);
