@@ -1,3 +1,4 @@
+
 .ui-ray-filebrowser-wrapper {
     width:336px;
     border:1px solid #ccc;
@@ -28,8 +29,9 @@
     color:#111;
 }
 
-.ui-ray-filebrowser-list li a.selected {
-    color:#269!important;
+.ui-ray-filebrowser-list li.selected a {
+    background-color:#def!important;
+    color:#269;
 }
 
 .ui-ray-filebrowser-list li a.opened {
