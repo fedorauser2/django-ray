@@ -1,5 +1,10 @@
 #ui-rayMirrorEditor-wrapper {
-    float:left;
+    position:absolute;
+    left:338px;
+    right:0;
+    bottom:0;
+    top:0;
+    overflow:hidden;
 }
 
 /* Buffers */
