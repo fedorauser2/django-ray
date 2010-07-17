@@ -313,14 +313,16 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
     _repaint: function(firstRepaint) {
         var ui = this; 
 
-        var heightGap = firstRepaint && 61 || 100;
-        
+        var heightGap = firstRepaint && 61 || 58;
+        var widthGap  = firstRepaint && 2 || 0;
 
-        ui.dom.wrapper
-            .width(window.innerWidth - $('.ui-ray-filebrowser-wrapper').width() - 50)
-            .height(window.innerHeight)
-            .find('.CodeMirror-wrapping')
-                .height(window.innerHeight - heightGap);
+        //ui.dom.wrapper
+        //    .width(window.innerWidth - $('.ui-ray-filebrowser-wrapper').width() - widthGap)
+        //    .height(window.innerHeight)
+        //    .find('.CodeMirror-wrapping')
+        //        .height(window.innerHeight - heightGap);
+        ui.dom.wrapper.find('.CodeMirror-wrapping')
+            .height(window.innerHeight - heightGap);
     },
     
     // Setup an editor inside a given HTML node
