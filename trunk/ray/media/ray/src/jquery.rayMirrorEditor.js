@@ -129,11 +129,11 @@ var rayToolbarManager = function(el) {
         setParsers: function(parsers) {
             var s = tb.dom.parserswitcher.find('select');
             for (var x in parsers) {
-//                if (x.hasOwnProperty) {
+                if (x.hasOwnProperty) {
                     $('<option>').data('magic', parsers[x])
                         .val(x).text(parsers[x].label)
                         .appendTo(s);
-//                    }
+                }
             }
                     
         },
@@ -172,7 +172,6 @@ var rayToolbarManager = function(el) {
             }
         }
     };
-
 };
 
 $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
@@ -181,7 +180,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         indentUnit: 4,
         undoDepth: 50,
         undoDelay: 600,
-        lineNumbers: false,
+        lineNumbers: true,
         textWrapping: false, // bugs line numbers
         autoMatchParens: true,
         disableSpellcheck: true,
