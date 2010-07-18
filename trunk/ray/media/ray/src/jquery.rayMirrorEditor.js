@@ -4,7 +4,6 @@ var rayBufferManager = function() {
     bm._buffers = {};
 
     return {
-
         // Focus a specified buffer takes a buffer object as argument
         focus: function(buffer) {
             this.invoke(function(i, b){
@@ -316,11 +315,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         var heightGap = firstRepaint && 61 || 58;
         var widthGap  = firstRepaint && 2 || 0;
 
-        //ui.dom.wrapper
-        //    .width(window.innerWidth - $('.ui-ray-filebrowser-wrapper').width() - widthGap)
-        //    .height(window.innerHeight)
-        //    .find('.CodeMirror-wrapping')
-        //        .height(window.innerHeight - heightGap);
         ui.dom.wrapper.find('.CodeMirror-wrapping')
             .height(window.innerHeight - heightGap);
     },
@@ -335,58 +329,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
 
         return parent.data({editor: ed, mirror: mi });
     },
-
-    /*
-    _setup_layout: function() {
-        var ui     = this;
-        var main   = $('body').rayWorkspace('get', 'workspace');
-        var layout = ui._get_layout();
-        var active = false;
-        var tpl    = '';
-        // No template, means non-splitted buffers ..
-        if (!layout.template) {
-            active = main;
-        }
-        // Accept array of HTML chunks
-        else {
-            if ($.isArray(layout.template)) {
-                $.each(layout.template, function(i){
-                    main.append(layout.template[i]);
-                });
-            }
-            // Or a simple string
-            else {
-                main.append(layout.template);
-            }
-            console.log('aa', layout.setup, main);
-            main.append(tpl).layout(layout.setup);
-//            console.log(main);
-//            main.find('.ui-layout-pane').each(function(){
-//                                              $(this).text('sti..');
-                                             console.log('zz', this);
-//              ui._setup_editor(this);
-//            });
-            //active = main.find('ui-layout-pane:first');
-        }
-//        console.log('aa', node.find('.ui-layout-pane'));
-//        console.log('active', active);
-
-        //ui._active_editor = active;
-    },
-    */
-
-    // Returns the currently selected layout
-    /*
-    _get_layout: function() {
-        var ui = this;
-        try {
-            return ui.options.layouts[ui.options.layout];
-        }
-        catch (e) {
-            return false;
-        }
-    },
-    */
 
     _save_state: function() {
         var ui = this;
