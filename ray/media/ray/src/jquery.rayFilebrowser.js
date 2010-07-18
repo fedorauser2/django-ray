@@ -170,9 +170,11 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         o = $('<ul class="ui-ray-filebrowser-list">'+ d.join('') + f.join('') +'</ul>');
 
         return o.find('a')
-                .bind('click', function(){
+                .bind('click', function(e){
                     $(this).parent().addClass('selected')
                         .siblings().removeClass('selected');
+                    e.preventDefault();
+                    return false;
                 })
                 .bind('dblclick', function(e){ 
                     ui._command_callback.apply(this, [e, ui]); 
