@@ -61,7 +61,10 @@ $.ui.rayBase = {
         //console.log('plugin_init', widget.plugins);
         for (var x in widget.plugins) {
             plugin = widget.plugins[x];
-            opt = $.extend((this.options[plugin] || {}), {widget: this});
+            opt = $.extend((this.options[plugin] || {}), {
+                        widget: this,
+                        media_path: '/media/',
+                    });
             wdg = (wn != 'ray') && this.widgetName +'_'+ plugin || plugin.split(':')[0];
             try {
                 $('body')[wdg](opt);
@@ -184,7 +187,7 @@ if ( typeof console !== 'undefined' && typeof console.log !== 'undefined') {
 $.widget('ui.ray', $.extend($.ui.rayBase, {
     options: {
         base_url: '/ray/',
-        debug:    true,
+        debug: true
     },
     
     // Allow each plugins to specify which file type they support
@@ -275,9 +278,6 @@ $.extend($.ui.ray, {
     // List of plugins (ex: "ns:rayPluginName<:lazy>", where ns refers to the namespace)
     // Lazy means that the plugin is not initialized upon initial load.
     // ORDER DOES MATTER
-    plugins: ['rayFilebrowser', 'rayMirrorEditor']//],//, 'rayPixlr'],
+    plugins: ['rayFilebrowser', 'rayMirrorEditor'],//],//, 'rayPixlr'], 
 });
 
-$(function(){
-    $('body').ray();
-});

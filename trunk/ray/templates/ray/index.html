@@ -19,6 +19,13 @@
     <link  href="/media/ray/css/jquery.splitter.css" rel="stylesheet" type="text/css" />
     <link  href="/media/jquery-ui/css/smoothness/jquery-ui-1.8.2.custom.css" rel="stylesheet" type="text/css" media="all" />
 	<script type="text/javascript"> 
+    $(window).load(function(){
+        $('body').ray({
+            'media_path': '{{ MEDIA_URL }}',
+        });
+    });
+	</script>     
+	<script type="text/javascript"> 
 		//Global setting edit these
 	////pixlr.settings.target = 'http://developer.pixlr.com/save_post_modal.php';
 	////pixlr.settings.exit = 'http://developer.pixlr.com/exit_modal.php';
