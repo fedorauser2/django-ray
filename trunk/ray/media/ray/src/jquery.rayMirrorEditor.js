@@ -217,7 +217,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         ],
         buttons: [
             ['editor-options', 
-                {label: 'Browse',   icons: {primary:'ui-icon-gear'}, callback: 'toggleFilebrowser'}, 
+                {label: 'Browse',   icons: {primary:'ui-icon-folder-open'}, callback: 'toggleFilebrowser'}, 
                 {label: 'New file', icons: {primary: 'ui-icon-document'}, callback: 'enew'}, 
                 {label: 'Save', icons: {primary: 'ui-icon-disk'}, callback: 'save', disabled: true} 
             ],
@@ -448,11 +448,14 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
 
         var ui = this;
         var button = $(e.currentTarget);
+        console.log(button);
         if ($('body').rayFilebrowser('isVisible')) {
             $('body').rayFilebrowser('hide');
+            button.button('option', 'icons', {primary: 'ui-icon-folder-collapsed'});
         }
         else {
             $('body').rayFilebrowser('show');
+            button.button('option', 'icons', {primary: 'ui-icon-folder-open'});
         }
         ui.dom.wrapper.css('left', ($('body').rayFilebrowser('isVisible') ? 338: 0));
     },
