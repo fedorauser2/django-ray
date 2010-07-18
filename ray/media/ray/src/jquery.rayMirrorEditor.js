@@ -4,6 +4,7 @@ var rayBufferManager = function() {
     bm._buffers = {};
 
     return {
+
         // Focus a specified buffer takes a buffer object as argument
         focus: function(buffer) {
             this.invoke(function(i, b){
@@ -176,7 +177,7 @@ var rayToolbarManager = function(el) {
 
 $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
     options: {
-        path: "/media/codemirror/",
+        editor_path: "codemirror/js/",
         indentUnit: 4,
         undoDepth: 50,
         undoDelay: 600,
@@ -205,14 +206,15 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
             /*
             "../ray/color-schemes/evening/scheme.css",
             */
-            "css/xmlcolors.css", 
-            "css/csscolors.css", 
-            "css/jscolors.css", 
-            "contrib/sql/css/sqlcolors.css", 
-            "contrib/php/css/phpcolors.css", 
-            "contrib/python/css/pythoncolors.css", 
-            "contrib/diff/css/diffcolors.css", 
-            "contrib/django/css/djangocolors.css" 
+            // TODO: fix hardcoded paths ..
+            "../../media/codemirror/css/xmlcolors.css", 
+            "../../media/codemirror/css/csscolors.css", 
+            "../../media/codemirror/css/jscolors.css", 
+            "../../media/codemirror/contrib/sql/css/sqlcolors.css", 
+            "../../media/codemirror/contrib/php/css/phpcolors.css", 
+            "../../media/codemirror/contrib/python/css/pythoncolors.css", 
+            "../../media/codemirror/contrib/diff/css/diffcolors.css", 
+            "../../media/codemirror/contrib/django/css/djangocolors.css" 
         ],
         buttons: [
             ['editor-options', 
@@ -257,6 +259,8 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
             editor:  $('<div id="ui-rayMirrorEditor-editor-wrapper" />'),
         };
 
+        ui.options.path = ui.options.media_path + ui.options.editor_path;
+
         //ui.options = $.extend($.ui.rayMirrorEditor.defaults, ui.options); // What the ?!
         ui.buffers = new rayBufferManager();
         
@@ -300,18 +304,15 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
                 ui._guess_parser();
             }
         });
-        
-        ui._setup_editor(ui.dom.editor.appendTo(ui.dom.wrapper));
+        $(window).resize(function(){ ui._repaint.call(ui); });
 
-        $(window).resize(function(){
-            ui._repaint.call(ui);
-        });
+        ui.dom.editor.appendTo(ui.dom.wrapper);
+        ui._setup_editor(ui.dom.editor);
         ui._repaint(true);
     },
     
     _repaint: function(firstRepaint) {
         var ui = this; 
-
         var heightGap = firstRepaint && 61 || 58;
         var widthGap  = firstRepaint && 2 || 0;
 
@@ -458,7 +459,12 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         var ui = this;
         if (ui._active_editor) {
             var ed = ui._active_editor.data('mirror');
-            return ed[method](args);
+            try {
+                return ed[method](args);
+            }
+            catch(e) {
+                console.log('Editor error: Could not execute editor command "'+ method +'" (Exception: '+ e.message +') '+ e.fileName +':'+ e.lineNumber);
+            }
         }
     },
 
