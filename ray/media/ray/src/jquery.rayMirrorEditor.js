@@ -116,7 +116,7 @@ var rayToolbarManager = function(el) {
         parserswitcher: $('<label class="ui-ray-syntax-selector">Syntax: <select /></label>'),
         bufferswitcher: $('<label class="ui-ray-buffer-selector">Buffer: <select /></label>'),
         button:     {},
-        rightset:   $('<div style="float:right;" />')
+        rightset:   $('<div style="float:right;margin-top:2px;" />')
     };
 
     tb.dom.rightset.append(tb.dom.bufferswitcher, tb.dom.parserswitcher)
@@ -217,18 +217,18 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         ],
         buttons: [
             ['editor-options', 
-                {label: 'Browse', icon: 'folder-open', callback: 'toggleFilebrowser'}, 
-                {label: 'New file', icon: 'document', callback: 'enew'}, 
-                {label: 'Save', icon: 'disk', callback: 'save'} 
+                {label: 'Browse',   icons: {primary:'ui-icon-gear'}, callback: 'toggleFilebrowser'}, 
+                {label: 'New file', icons: {primary: 'ui-icon-document'}, callback: 'enew'}, 
+                {label: 'Save', icons: {primary: 'ui-icon-disk'}, callback: 'save', disabled: true} 
             ],
             ['editing-options', 
-                {label: 'Undo', icon: 'arrowreturn-1-w', callback: 'undo'}, 
-                {label: 'Redo', icon: 'arrowreturn-1-e', callback: 'redo'}
+                {label: 'Undo', icons: {primary: 'ui-icon-arrowreturn-1-w'}, callback: 'undo', disabled: true}, 
+                {label: 'Redo', icons: {primary: 'ui-icon-arrowreturn-1-e'}, callback: 'redo', disabled: true}
             ],
             ['buffer-actions',  
-                {label: 'Re-indent', icon: 'signal', callback: 'reindent'},
-                {label: 'Go to line', icon: 'seek-end', callback: 'gotoline'}, 
-                {label: 'Settings', icon: 'gear', callback: 'togglesettings'}
+                {label: 'Re-indent',     icons: {primary: 'ui-icon-signal'}, callback: 'reindent'},
+                {label: 'Go to line',    icons: {primary: 'ui-icon-seek-end'}, callback: 'gotoline'}, 
+                {label: 'Settings',      icons: {primary: 'ui-icon-gear'}, callback: 'togglesettings'}
 //                {label: 'Split', icon: 'split-win', callback: 'splitwin'},
 //                {label: 'Syntax', icon: 'gear', callback: 'setsyntax', choices: []},
             ]
@@ -269,7 +269,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
 
         // Setup toolbar 
         ui.toolbar = new rayToolbarManager(ui.dom.toolbar.appendTo(ui.dom.wrapper));
-        //ui._build_buttons(ui.toolbar.get('toolbar'));
+        ui._build_buttons(ui.toolbar.get('toolbar'));
         ui.toolbar.setParsers(ui.options.magic);
 
         ui.toolbar.get('parserswitcher').find('select').bind('change', function(){ 
@@ -303,6 +303,9 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
                 ui._guess_parser();
             }
         });
+        
+        ui.dom.wrapper.css('left', ($('body').rayFilebrowser('isVisible') ? 338: 0));
+        
         $(window).resize(function(){ ui._repaint.call(ui); });
 
         ui.dom.editor.appendTo(ui.dom.wrapper);
@@ -326,6 +329,10 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         var el  = $(tpl).appendTo(parent).get(0);  // TODO: fix height problem with editor when filebrowser is open
         var ed  = CodeMirror.replace(el);          // (double scrollbar with long buffers)
         var mi  = new CodeMirror(ed, ui.options);
+
+        $(mi.win).bind('focus', function(){
+            ui._trigger('editorFocus');
+        });
 
         return parent.data({editor: ed, mirror: mi });
     },
@@ -398,7 +405,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         var nbf = ui.buffers.create();
 
         // Replacing an open buffer, save its state first
-        if (obf) {ui.element.rayWorkspace('getPane', 'north')
+        if (obf) {
             ui._save_state();
         }
         
@@ -440,17 +447,14 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
     toggleFilebrowser: function(e) {
 
         var ui = this;
-        var state  = ui.element.rayWorkspace('get', 'state');
         var button = $(e.currentTarget);
-
-        if (state.south.isVisible) {
-            ui.element.rayWorkspace('exec', 'hide', 'south');
-            button.find('.ui-icon').removeClass('ui-icon-folder-open').addClass('ui-icon-folder-collapsed');
+        if ($('body').rayFilebrowser('isVisible')) {
+            $('body').rayFilebrowser('hide');
         }
         else {
-            ui.element.rayWorkspace('exec', 'show', 'south');
-            button.find('.ui-icon').removeClass('ui-icon-folder-collapsed').addClass('ui-icon-folder-open');
+            $('body').rayFilebrowser('show');
         }
+        ui.dom.wrapper.css('left', ($('body').rayFilebrowser('isVisible') ? 338: 0));
     },
 
     // Execute a CodeMirror command on the active editor

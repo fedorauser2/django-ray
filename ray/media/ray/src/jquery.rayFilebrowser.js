@@ -4,14 +4,30 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
 
     options: {
         hasFocus: false,
+        hidden: false,
         change: function(e, data) {
             console.log('test3', e, data);
         },
+    },
+    
+    isVisible: function() { return !this.options.hidden; },
+
+    hide: function() {
+        var ui = this;
+        ui.options.hidden = true;
+        ui.dom.wrapper.hide();
+    },
+
+    show: function() {
+        var ui = this;
+        ui.options.hidden = false;
+        ui.dom.wrapper.show();
     },
 
     focus: function() {
         var ui = this;
         ui.options.hasFocus = true;      
+        ui.dom.wrapper.addClass('focus');
         $(window).unbind('keydown.rayFilebrowser')
             .bind('keydown.rayFilebrowser', function(e){ 
                 ui._keyboardNav.apply(ui, [e]);
@@ -21,6 +37,7 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
     blur: function() {
         var ui = this;
         ui.options.hasFocus = false;      
+        ui.dom.wrapper.removeClass('focus');
         $('body').unbind('keydown.rayFilebrowser');
     },
 
@@ -122,6 +139,9 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
 
         //ui._callback('change');
         //ui.element.trigger('rayfilebrowserchange');
+        $('body').bind('editorFocus', function() {
+            ui.blur();
+        });
         $(window).resize(function(){
             ui._repaint.call(ui);
         });
@@ -254,6 +274,7 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
     _repaint: function() {
         var ui = this;
         ui.dom.wrapper.height(window.innerHeight - 2); 
+        ui.dom.wrapper.find('.ui-ray-filebrowser-list').height(window.innerHeight - 33);
     },
 
 });

@@ -89,21 +89,25 @@ $.ui.rayBase = {
         }
     },
 
-
     /* Create a button widget
      * */
-    _button: function (btn) {
-        return $('<button id="'+ btn.id +'">'+ btn.button +'</button>').button(btn.options || {});
+    _button: function (b) {
+        var type = b.type && b.type || 'button';
+        var btn = $('<'+ type +' />');
+        if (b.id) {
+            btn.attr('id', b.id);
+        }
+        if (b.label) {
+            btn.text(b.label);
+        }
+        return btn.button(b);
      },
-
 
     /* Create a button widget
      * */
     _toggleButton: function (btn) {
         return $('<input type="checkbox" id="'+ btn.id +'" /><label for="'+ btn.id +'">'+ btn.toggleButton +'</label>').button(btn.options || {});
      },
-             
-    //<button class="{button:{icons:{primary:'ui-icon-gear',secondary:'ui-icon-triangle-1-s'}}} ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icons" role="button"><span class="ui-button-icon-primary ui-icon ui-icon-gear"></span><span class="ui-button-text">Button with two icons</span><span class="ui-button-icon-secondary ui-icon ui-icon-triangle-1-s"></span></button>
     
     /* Create a button set
      * */
@@ -123,10 +127,10 @@ $.ui.rayBase = {
     _build_buttons: function (appendTo) {
         var ui = this;
 
-        var button = function(label, icon, corners, callback) {
-            return ui._button('ray-button-'+ callback, label, icon, corners)
+        var button = function(options) {
+            return ui._button(options)
                         .bind('click.rayEditor', function(e) {
-                            ui[callback].apply(ui, [e]); });
+                            ui[options.callback].apply(ui, [e]); });
         };
 
         $.each(ui.options.buttons, function(){
@@ -136,7 +140,7 @@ $.ui.rayBase = {
                 var label = 'ray-window-'+ this[0];
                 $.each(this, function (i, b){
                     if (i > 0) {
-                        set.push(button(b.label, b.icon, 'none', b.callback));
+                        set.push(button(b));
                     }
                 });
                 ui._buttonSet(label, set).appendTo(appendTo);
@@ -255,7 +259,6 @@ $.widget('ui.ray', $.extend($.ui.rayBase, {
      *  label: "JavaScript",        // File type label
      *  callback: 'method_name'}    // Callback method (within the widget)
      * */
-    // 
     set_mime_type: function (i) {
         this._file_types[i.extension] = i;
     },

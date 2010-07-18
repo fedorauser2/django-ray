@@ -6,8 +6,12 @@
     float:left;
 }
 .ui-ray-filebrowser-list {
+    border:1px solid #fff;
     margin:0;
     padding:0;
+}
+.focus .ui-ray-filebrowser-list {
+    border:1px solid #fda;
 }
 .ui-ray-filebrowser-list li {
     border-bottom:1px solid #eee;
