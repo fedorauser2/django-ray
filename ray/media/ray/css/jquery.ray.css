@@ -59,12 +59,22 @@ iframe {
 
 
 /* PLUGINS */
-
 .CodeMirror-line-numbers {
-    background:#333!important;
-    border-right:1px solid #444!important;
-    color:#EBDF24;
+    background:#F4F4F4;
+    border-right:1px dashed #DDDDDD;
+    padding:5px 3px 0 0;
+    width:30px;
 }
+
+.CodeMirror-line-numbers div {
+    font-family:monospace;
+    font-size:10pt;
+    line-height:1.1em;
+    color:#888;
+    padding:0;
+    text-align:right;    
+}
+
 
 dl.ui-ray-details {}
 dl.ui-ray-details dt {
