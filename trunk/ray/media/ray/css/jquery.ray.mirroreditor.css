@@ -20,12 +20,6 @@
 .ui-ray-toolbar {
     padding:4px 4px!important;
 }
-.ui-ray-toolbar .ui-button {
-    height:22px!important;
-}
-.ui-ray-toolbar .ui-button-text {
-    height:22px!important;
-}
 
 /* Settings */
 .ui-ray-settings {
@@ -87,4 +81,8 @@
 }
 .ui-ray-syntax-selector {
     float:right;
+}
+
+#ui-rayMirrorEditor-tollbar-wrapper .ui-button-text {
+    font-size:9pt!important;
 }
