@@ -83,3 +83,8 @@ INSTALLED_APPS = (
     'ray',
     'blog',
 )
+
+RAY_EDITABLE_DIRS = (
+    os.path.join(PROJECT_PATH, 'templates/'),
+    os.path.join(PROJECT_PATH, 'media/'),
+)
