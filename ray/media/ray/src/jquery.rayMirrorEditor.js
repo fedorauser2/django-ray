@@ -307,6 +307,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
                 ui.buffers.focus(new_buffer);
                 ui.toolbar.title("[No name]");
                 ui.updateBufferList();
+
             }
         });
         
@@ -441,8 +442,10 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
      * buffer list (can accept an alternate buffer list)
      * */
     updateBufferList: function() {
-        var buf, tt, x;
         var ui = this;
+        ui._trigger('bufferlistUpdated', {buffers: ui.buffers.all()});
+        /*
+        var buf, tt, x;
         var select = ui.toolbar.get('bufferswitcher').find('select').empty();
         var buffers = arguments[0] || ui.buffers.all();
         console.log('+++++++', ui.buffers.getFocused())
@@ -458,6 +461,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
                 .val(buf.file && buf.file.path || false)
                 .appendTo(select).text(tt);
         }
+        */
     
     },
 
