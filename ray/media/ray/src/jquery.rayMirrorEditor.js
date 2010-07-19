@@ -110,7 +110,7 @@ var rayBufferManager = function() {
 var rayToolbarManager = function(el) {
     var tb = this;
     tb.dom = {
-        titlebar:   $('<div class="ui-ray-titlebar" />'),
+        titlebar:   $('<div class="ui-ray-titlebar ui-widget-header" />'),
         toolbar:    $('<div class="ui-widget-header ui-helper-reset ui-helper-clearfix ui-ray-toolbar" />'),
         cursorinfo: $('<span class="ui-ray-cursorinfo" />'),
         parserswitcher: $('<label class="ui-ray-syntax-selector">Syntax: <select /></label>'),
@@ -275,8 +275,10 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         ui.toolbar.get('parserswitcher').find('select').bind('change', function(){ 
             ui.setparser($(':selected', this).data('magic').parser);
         });
-        
-        ui.toolbar.title("[No name]");
+
+        ui.toolbar.get('bufferswitcher').find('select').bind('change', function(){
+            ui.e($(this).val());
+        });
 
         // Setup known file types that should be handled
         // with  rayMirrorEditor
@@ -301,6 +303,10 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
 
             initCallback: function(editor) {
                 ui._guess_parser();
+                var new_buffer = ui.buffers.create();
+                ui.buffers.focus(new_buffer);
+                ui.toolbar.title("[No name]");
+                ui.updateBufferList();
             }
         });
         
@@ -394,7 +400,9 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
             ui.exec('setCode', file.content);
             ui._save_state();
         }
-        ui._guess_parser(ui._get_file_extension(file.path));
+        if (file.path) {
+            ui._guess_parser(ui._get_file_extension(file.path));
+        }
         ui.updateBufferList();
     },
 
@@ -433,13 +441,22 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
      * buffer list (can accept an alternate buffer list)
      * */
     updateBufferList: function() {
+        var buf, tt, x;
         var ui = this;
         var select = ui.toolbar.get('bufferswitcher').find('select').empty();
         var buffers = arguments[0] || ui.buffers.all();
-        for (var x in buffers) {
-            var tt = buffers[x].file.path + (buffers[x].modified && ' [+]' || '');
-            $('<option />').data('buffer', buffers[x])
-                .val(buffers[x].file.path).appendTo(select).text(tt.split(':')[1]);
+        console.log('+++++++', ui.buffers.getFocused())
+        for (x in buffers) {
+            buf = buffers[x];
+            if (buf.file !== false) {
+                tt = (buf.file.path + (buf.modified && ' [+]' || '')).split(':')[1];
+            }
+            else {
+                tt = '[No Name]'
+            }
+            $('<option />').data('buffer', buf)
+                .val(buf.file && buf.file.path || false)
+                .appendTo(select).text(tt);
         }
     
     },
@@ -448,7 +465,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
 
         var ui = this;
         var button = $(e.currentTarget);
-        console.log(button);
         if ($('body').rayFilebrowser('isVisible')) {
             $('body').rayFilebrowser('hide');
             button.button('option', 'icons', {primary: 'ui-icon-folder-collapsed'});

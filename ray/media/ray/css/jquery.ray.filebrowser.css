@@ -5,6 +5,30 @@
     background:#fff;
     float:left;
 }
+
+/* Tabs */
+.ui-ray-filebrowser-wrapper.ui-tabs .ui-widget-header {
+    border-width:0 0 1px 0;
+}
+.ui-ray-filebrowser-wrapper.ui-tabs {
+    padding:0;
+    -moz-border-radius:0!important;
+}
+.ui-ray-filebrowser-wrapper.ui-tabs ul {
+    -moz-border-radius:0!important;
+}
+.ui-ray-filebrowser-wrapper.ui-tabs .ui-tabs-nav li a {
+    font-size:0.6em;
+}
+.ui-ray-filebrowser-wrapper.ui-tabs .ui-tabs-nav {
+    padding:0.1em 0.1em 0;
+}
+.ui-ray-filebrowser-wrapper.ui-tabs .ui-tabs-panel {
+    padding:0;
+}
+
+
+
 .ui-ray-filebrowser-list {
     border:1px solid #fff;
     margin:0;
@@ -15,6 +39,7 @@
 }
 .ui-ray-filebrowser-list li {
     border-bottom:1px solid #eee;
+    list-style:none;
 }
 
 .ui-ray-filebrowser-list li a {
@@ -62,6 +87,10 @@
     background:#eee;
     border-border:1px solid #ddd;
     height:27px;
+    width:338px;
+    position:fixed;
+    bottom:0;
+    left:0;
 }
 .ui-ray-filebrowser-breadcrumbs li {
     float:left;
@@ -71,7 +100,7 @@
 .ui-ray-filebrowser-breadcrumbs li a {
     background:#ddd;
     display:block;
-    font-size:11px;
+    font-size:11px!important;
     padding:0px 6px;
     margin:1px 0 0 1px;
     text-decoration:none;
@@ -83,8 +112,12 @@
 .ui-ray-filebrowser-breadcrumbs .ui-button-text-only .ui-button-text {
     padding:0.3em 0;
 } 
+.ui-ray-filebrowser-wrapper.ui-tabs #browser .ui-widget-header {
+    border-width:1px 0 0 0;
+}
 .ui-ray-filebrowser-breadcrumbs li a span.ui-icon {
     position:relative;
+    font-size:0.8em;
     top:0px;
 }
 .ui-ray-filebrowser-breadcrumbs li a:hover {

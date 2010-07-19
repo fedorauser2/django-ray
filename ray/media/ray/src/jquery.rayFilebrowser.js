@@ -49,17 +49,13 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
     
     fileopen: function(p, link) {
         var ui = this;
-        ui._trigger('fileOpen', { path: p });
-        link.addClass('opened');
+        ui._trigger('fileOpen', { path: p, element: link || false });
     },
 
     diropen: function(p, link) {
         var ui = this;
-        ui._trigger('dirOpen', { path: '?path='+ p });
+        ui._trigger('dirOpen', { path: '?path='+ p, element: link || false });
         ui.cwd = p;
-        if (link) {
-            link.addClass('opened');
-        }
     },
 
 
@@ -115,17 +111,25 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
     },
 
     _create: function() {
-
         var ui = this;
 
-        ui.dom.wrapper = $('<div class="ui-ray-filebrowser-wrapper" />')
-                            .bind('click.rayFilebrowser', function(){ ui.focus(); })
-                            .appendTo(ui.element);
-        
-      //$('body').bind('click.rayFilebrowser', function(e){
-      //    console.log(e, this);
-      //});
+        ui.dom.wrapper = $([
+            '<div class="ui-ray-filebrowser-wrapper">',
+                '<ul>',
+                    '<li><a href="#browser">Browser</a></li>',
+                    '<li><a href="#buffers">Opened Files</a></li>',
+                '</ul>',
+                '<div id="browser"></div>',
+                '<div id="buffers"><p>Todo :D<p></div>',
+            '</div>'].join(''))
+            .bind('click.rayFilebrowser', function(){ ui.focus(); })
+            .appendTo(ui.element)
+            .tabs();
 
+        ui.dom.tab = [];
+        ui.dom.tab[1] = ui.dom.wrapper.find('#browser');
+        ui.dom.tab[2] = ui.dom.wrapper.find('#buffers');
+        
         ui.element.bind('dirOpened.rayFilebrowser', function(e){
             var rs, li, pane, list, path;
             rs   = e.originalEvent.data.content;
@@ -139,9 +143,15 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
 
         //ui._callback('change');
         //ui.element.trigger('rayfilebrowserchange');
-        $('body').bind('editorFocus', function() {
-            ui.blur();
-        });
+        $('body')
+            .bind('dirOpened', function(e) {
+                  console.log(e);
+                  console.log(e.originalEvent.data);
+                if (e.originalEvent.data.element) {
+                    e.originalEvent.data.element.addClass('opened'); 
+                }
+            })
+            .bind('editorFocus', function() { ui.blur(); });
         $(window).resize(function(){
             ui._repaint.call(ui);
         });
@@ -266,7 +276,8 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
     // data updated
     _redraw: function() {
         var ui = this;
-        ui.dom.wrapper.html(ui._build_breadcrumb()).append(ui._build_list()).click();
+        ui.dom.tab[1].html(ui._build_breadcrumb()).append(ui._build_list());
+        ui.dom.wrapper.trigger('click');
         ui._repaint();
     },
 
