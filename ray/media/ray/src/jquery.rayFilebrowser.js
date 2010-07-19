@@ -197,24 +197,36 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
      *  and binds the necessary events.
      * */
     _build_list: function() {
-        var ui, d, f, o;
+        var ui, d, f, o, data;
         ui = this;
-        d = ui._build_dir_list(ui._datasource);
-        f = ui._build_file_list(ui._datasource);
-        o = $('<ul class="ui-ray-filebrowser-list">'+ d.join('') + f.join('') +'</ul>');
+        data = ui._datasource;
 
-        return o.find('a')
-                .bind('click', function(e){
-                    $(this).parent().addClass('selected')
-                        .siblings().removeClass('selected');
-                    e.preventDefault();
-                    return false;
-                })
-                .bind('dblclick', function(e){ 
-                    ui._command_callback.apply(this, [e, ui]); 
-                })
-                .first().click().end()
-            .end();
+        // Nothing to list .. RAY_EDITABLE_DIRS is most likely not set
+        if (data.path == '' && !data.dirs.length && !data.files.length) {
+            return $(['<div class="error ui-state-error ui-corner-all"><p>',
+                        '<span style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-alert"></span>',
+                        '<strong>Error: </strong>',
+                        'No folders or files to list .. did you set the \"<b>RAY_EDITABLE_DIRS</b>\" in your settings.py file ?',
+                    '</p></div>'].join(''));
+        }
+        // we have something to list
+        else {
+            d = ui._build_dir_list(data);
+            f = ui._build_file_list(data);
+            o = $('<ul class="ui-ray-filebrowser-list">'+ d.join('') + f.join('') +'</ul>');
+            return o.find('a')
+                    .bind('click', function(e){
+                        $(this).parent().addClass('selected')
+                            .siblings().removeClass('selected');
+                        e.preventDefault();
+                        return false;
+                    })
+                    .bind('dblclick', function(e){ 
+                        ui._command_callback.apply(this, [e, ui]); 
+                    })
+                    .first().click().end()
+                .end();
+        }
     },
 
     /*  This methods interprets the commands specified in the
@@ -285,7 +297,6 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         for (var x in buffers) {
             if (x.hasOwnProperty) {
                 var buffer = buffers[x];
-                console.log('½½', buffer);
                 if (!buffer.file) {
                     var label = '[No Name]';
                 }

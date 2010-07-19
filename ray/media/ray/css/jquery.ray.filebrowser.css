@@ -132,6 +132,14 @@
     color:#111;
 }
 
+#browser .error {
+    margin:10px;
+}
+#browser .error p {
+    margin:10px;
+    font-size:0.8em;
+}
+
 /* Generic file icons */
 
 
