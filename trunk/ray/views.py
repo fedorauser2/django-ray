@@ -59,7 +59,7 @@ def ray_context(request):
 
 def ray_open(request):
     '''
-    TODO: document
+    Open a document on the server and returns its content JSON encoded
     '''
     if 'path' in request.GET:
         path = get_secure_path(request.GET['path'])
@@ -74,7 +74,28 @@ def ray_open(request):
 
 def get_secure_path(p):
     '''
-    TODO: replace gettho security
+    This method maps the resource index in the paths with their actual path
+    in settings.RAY_EDITABLE_DIRS.
+    
+    For example, if you have this setting:
+
+    RAY_EDITABLE_DIRS = (
+        "/some/path/to/templates/"
+        "/some/path/to/media/"
+    )
+    
+    The secured path to access the template folder would look like this:
+
+    /0:/templates/
+
+    And if we wanted to access the "js" folder in media it would look like this:
+
+    /1:/media/js/
+
+    As you can see, the number in the path simply represent the index of the 
+    editable dir in RAY_EDITABLE_DIRS.
+
+    The only other security applied is to nuke all instance of "../" in the path.
     '''
 
     n = re.compile(r'^/(\d+):', re.IGNORECASE)
@@ -88,12 +109,6 @@ def get_secure_path(p):
         return p.replace('../', '')
     else:
         return ''
-#   if p == '':
-#       p = settings.RAY_EDITABLE_DIRS[0]
-#   else:
-#       if p[0] == '/':
-#           p = p[1:]
-
 
 
 def ray_browse(request):
@@ -171,6 +186,7 @@ def ray_editor(request):
     '''
     TODO: document
     '''
+    print "+++++++=test"
     return render_to_response('ray/editor.html')
 
 def ray_layout(request):
