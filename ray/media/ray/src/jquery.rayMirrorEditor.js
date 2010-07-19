@@ -114,14 +114,11 @@ var rayToolbarManager = function(el) {
         toolbar:    $('<div class="ui-widget-header ui-helper-reset ui-helper-clearfix ui-ray-toolbar" />'),
         cursorinfo: $('<span class="ui-ray-cursorinfo" />'),
         parserswitcher: $('<label class="ui-ray-syntax-selector">Syntax: <select /></label>'),
-        bufferswitcher: $('<label class="ui-ray-buffer-selector">Buffer: <select /></label>'),
         button:     {},
         rightset:   $('<div style="float:right;margin-top:2px;" />')
     };
 
-    tb.dom.rightset.append(tb.dom.bufferswitcher, tb.dom.parserswitcher)
-        .appendTo(tb.dom.toolbar);
-
+    tb.dom.rightset.append(tb.dom.parserswitcher).appendTo(tb.dom.toolbar);
     tb.el = el.append(tb.dom.cursorinfo, tb.dom.titlebar, tb.dom.toolbar);
 
     return {
@@ -274,10 +271,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
 
         ui.toolbar.get('parserswitcher').find('select').bind('change', function(){ 
             ui.setparser($(':selected', this).data('magic').parser);
-        });
-
-        ui.toolbar.get('bufferswitcher').find('select').bind('change', function(){
-            ui.e($(this).val());
         });
 
         // Setup known file types that should be handled
@@ -444,25 +437,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
     updateBufferList: function() {
         var ui = this;
         ui._trigger('bufferlistUpdated', {buffers: ui.buffers.all()});
-        /*
-        var buf, tt, x;
-        var select = ui.toolbar.get('bufferswitcher').find('select').empty();
-        var buffers = arguments[0] || ui.buffers.all();
-        console.log('+++++++', ui.buffers.getFocused())
-        for (x in buffers) {
-            buf = buffers[x];
-            if (buf.file !== false) {
-                tt = (buf.file.path + (buf.modified && ' [+]' || '')).split(':')[1];
-            }
-            else {
-                tt = '[No Name]'
-            }
-            $('<option />').data('buffer', buf)
-                .val(buf.file && buf.file.path || false)
-                .appendTo(select).text(tt);
-        }
-        */
-    
     },
 
     toggleFilebrowser: function(e) {
