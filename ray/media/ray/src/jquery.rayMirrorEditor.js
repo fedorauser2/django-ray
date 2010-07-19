@@ -52,6 +52,7 @@ var rayBufferManager = function() {
             return buffer;
         },
 
+        // Sets a property for a specified buffer
         set: function(b, k, v) {
             var bf = this.get(b);
             if (bf) {
@@ -114,7 +115,6 @@ var rayToolbarManager = function(el) {
         toolbar:    $('<div class="ui-widget-header ui-helper-reset ui-helper-clearfix ui-ray-toolbar" />'),
         cursorinfo: $('<span class="ui-ray-cursorinfo" />'),
         parserswitcher: $('<label class="ui-ray-syntax-selector">Syntax: <select /></label>'),
-        button:     {},
         rightset:   $('<div style="float:right;margin-top:2px;" />')
     };
 
@@ -167,7 +167,13 @@ var rayToolbarManager = function(el) {
             else {
                 return tb.dom.titlebar.text();
             }
+        },
+
+        get_button: function(id) {
+            var ui = this;
+            return tb.dom.toolbar.find('#'+ id +'.ui-button');
         }
+
     };
 };
 
@@ -214,38 +220,37 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         ],
         buttons: [
             ['editor-options', 
-                {label: 'Browse',   icons: {primary:'ui-icon-folder-open'}, callback: 'toggleFilebrowser'}, 
-                {label: 'New file', icons: {primary: 'ui-icon-document'}, callback: 'enew'}, 
-                {label: 'Save', icons: {primary: 'ui-icon-disk'}, callback: 'save', disabled: true} 
+                {label: 'Browse',   id: 'browse',   icons: {primary:'ui-icon-folder-open'}, callback: 'toggleFilebrowser'}, 
+                {label: 'New file', id: 'new-file', icons: {primary: 'ui-icon-document'}, callback: 'enew'}, 
+                {label: 'Save',     id: 'save',     icons: {primary: 'ui-icon-disk'}, callback: 'save', disabled: true} 
             ],
             ['editing-options', 
-                {label: 'Undo', icons: {primary: 'ui-icon-arrowreturn-1-w'}, callback: 'undo', disabled: true}, 
-                {label: 'Redo', icons: {primary: 'ui-icon-arrowreturn-1-e'}, callback: 'redo', disabled: true}
+                {label: 'Undo', id: 'undo', icons: {primary: 'ui-icon-arrowreturn-1-w'}, callback: 'undo', disabled: true}, 
+                {label: 'Redo', id: 'redo', icons: {primary: 'ui-icon-arrowreturn-1-e'}, callback: 'redo', disabled: true}
             ],
             ['buffer-actions',  
-                {label: 'Re-indent',     icons: {primary: 'ui-icon-signal'}, callback: 'reindent'},
-                {label: 'Go to line',    icons: {primary: 'ui-icon-seek-end'}, callback: 'gotoline'}, 
-                {label: 'Settings',      icons: {primary: 'ui-icon-gear'}, callback: 'togglesettings'}
-//                {label: 'Split', icon: 'split-win', callback: 'splitwin'},
-//                {label: 'Syntax', icon: 'gear', callback: 'setsyntax', choices: []},
+                {label: 'Re-indent',  id: 're-indent',  icons: {primary: 'ui-icon-signal'},   callback: 'reindent'},
+                {label: 'Go to line', id: 'go-to-line', icons: {primary: 'ui-icon-seek-end'}, callback: 'gotoline'}, 
+                {label: 'Settings',   id: 'settings',   icons: {primary: 'ui-icon-gear'},     callback: 'togglesettings'}
             ]
         ],
         magic: {
             'dummy': { label: 'No Syntax', parser: 'DummyParser' },
-            'html': { label: 'HTML/CSS/JS', parser: 'HTMLMixedParser' },
-//            'html': { label: 'Django template', parser: 'DjangoHTMLMixedParser' },
+            'html':  { label: 'HTML/CSS/JS', parser: 'HTMLMixedParser' },
+//          'html':  { label: 'Django template', parser: 'DjangoHTMLMixedParser' },
             'xhtml': { label: 'HTML/CSS/JS', parser: 'HTMLMixedParser' },
-            'php':  { label: 'HTML/CSS/JS/PHP', parser: 'PHPHTMLMixedParser' },
-            'js':   { label: 'JavaScript', parser: 'JSParser' },
-            'py':   { label: 'Python', parser: 'PythonParser' },
-            'css':  { label: 'CSS', parser: 'CSSParser' },
-            'sql':  { label: 'SQL', parser: 'SqlParser' },
+            'php':   { label: 'HTML/CSS/JS/PHP', parser: 'PHPHTMLMixedParser' },
+            'js':    { label: 'JavaScript', parser: 'JSParser' },
+            'py':    { label: 'Python', parser: 'PythonParser' },
+            'css':   { label: 'CSS', parser: 'CSSParser' },
+            'sql':   { label: 'SQL', parser: 'SqlParser' },
             'patch': { label: 'Diff', parser: 'DiffParser' },
             'diff':  { label: 'Diff', parser: 'DiffParser' }
-//      'html': { label: 'HTML+Django', parserfile: ["parsexml.js", "parsecss.js", "tokenizejavascript.js", "parsejavascript.js", "parsedjango.js", "parsehtmldjango.js"], 
+//          'html':  { label: 'HTML+Django', parserfile: ["parsexml.js", "parsecss.js", "tokenizejavascript.js", "parsejavascript.js", "parsedjango.js", "parsehtmldjango.js"], 
 //                stylesheet: ["css/xmlcolors.css", "css/jscolors.css", "css/csscolors.css", "css/djangocolors.css"] },
         }
     },
+
     _create: function() {
         var ui = this;
 
@@ -279,10 +284,13 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
             ui.element.ray('set_mime_type', {extension: i, type: this.widgetName, label: m.label, callback: 'file_open'});
         });
 
+        // File content has been loaded, process it
         ui.element.bind('contentLoaded', function (e){
             ui.e(e.originalEvent.data);
+            ui.toolbar.get_button('undo').button('option', 'disabled', false);
+            ui.toolbar.get_button('redo').button('option', 'disabled', false);
         });
-        
+
         ui.options = $.extend(ui.options, {
             cursorActivity: function() {
                 ui._trigger('cursorActivity');
@@ -312,6 +320,15 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         ui._setup_editor(ui.dom.editor);
         ui._repaint(true);
     },
+
+    _guess_parser: function(ext) {
+        var ui  = this;
+        ext = ext || 'html';
+        if (ext && ui.options.magic[ext.toLowerCase()]) {
+            return ui.setparser(ui.options.magic[ext].parser);
+        }
+        return ui.setparser('DummyParser');
+    },
     
     _repaint: function(firstRepaint) {
         var ui = this; 
@@ -326,8 +343,8 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
     _setup_editor: function(parent) {
         var ui  = this;
         var tpl = '<textarea style="width:100%;" class="ui-ray-editor-buffer" />';
-        var el  = $(tpl).appendTo(parent).get(0);  // TODO: fix height problem with editor when filebrowser is open
-        var ed  = CodeMirror.replace(el);          // (double scrollbar with long buffers)
+        var el  = $(tpl).appendTo(parent).get(0);
+        var ed  = CodeMirror.replace(el);
         var mi  = new CodeMirror(ed, ui.options);
 
         $(mi.win).bind('focus', function(){
@@ -353,7 +370,27 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
                 title = title + ' [+]';
             }
             ui.toolbar.title(title.split(':')[1]);
+            
         }
+    },
+
+    // Open existing buffer
+    b: function(bufferID) {
+        var ui  = this;
+        var nbf = ui.buffers.get(bufferID)
+        var obf = ui._active_editor.data('buffer');
+        
+        // Replacing an open buffer, save its state first
+        if (obf) {
+            ui._save_state();
+        }
+        
+        ui._active_editor.data('buffer', nbf);
+        ui.exec('setCode', nbf.currentContent);
+        if (nbf.file.path) {
+            ui._guess_parser(ui._get_file_extension(nbf.file.path));
+        }
+        ui._save_state();
     },
 
     // New buffer from file
@@ -440,7 +477,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
     },
 
     toggleFilebrowser: function(e) {
-
         var ui = this;
         var button = $(e.currentTarget);
         if ($('body').rayFilebrowser('isVisible')) {
@@ -501,6 +537,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         ui.options.textWrapping = !ui.options.textWrapping;
         return this.exec('setTextWrapping', ui.options.textWrapping);
     },
+
     togglelinenumbers: function() { 
         var ui = this;
 
@@ -528,15 +565,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         ui.toolbar.setParser(parser);
         ui.exec('setParser', parser);
     },
-
-    _guess_parser: function(ext) {
-        var ui  = this;
-        ext = ext || 'html';
-        if (ext && ui.options.magic[ext.toLowerCase()]) {
-            return ui.setparser(ui.options.magic[ext].parser);
-        }
-        return ui.setparser('DummyParser');
-    }
 
 }));
 

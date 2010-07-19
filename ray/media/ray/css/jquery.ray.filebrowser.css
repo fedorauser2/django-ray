@@ -64,7 +64,7 @@
 }
 
 .ui-ray-filebrowser-list li.selected a,
-.ui-ray-buffer-list li.selected a:hover {
+.ui-ray-buffer-list li.selected a {
     background-color:#def!important;
     color:#269;
 }

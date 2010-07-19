@@ -58,6 +58,16 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         ui.cwd = p;
     },
 
+    bufferopen: function(bufferID) {
+        $('body').rayMirrorEditor('b', bufferID);
+    },
+
+    _get_display_filename: function(buffer) {
+        var ui, label;
+        ui = this;
+        label = buffer.file && buffer.file.path || '[No Name]';
+        return buffer.modified && label + ' [+]' || label;
+    },
 
     _keyboardNav: function(e) {
         var ui = this;
@@ -139,10 +149,7 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
             }
         });
         ui._trigger('dirOpen', { path: '?path=/' });
-        //ui.element.bind('rayfilebrowserchange', function() { console.log('test2'); });'body'
 
-        //ui._callback('change');
-        //ui.element.trigger('rayfilebrowserchange');
         $('body')
           //.bind('dirOpened', function(e) {
           //      console.log(e);
@@ -287,14 +294,6 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
                     .bind('click', function(e){ 
                         ui._command_callback.apply(this, [e, ui]); 
                     }).end();
-    },
-
-
-    _get_display_filename: function(buffer) {
-        var ui, label;
-        ui = this;
-        label = buffer.file && buffer.file.path || '[No Name]';
-        return buffer.modified && label + ' [+]' || label;
     },
 
     _repaint_buffers_list: function(buffers) {
