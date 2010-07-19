@@ -29,20 +29,24 @@
 
 
 
-.ui-ray-filebrowser-list {
+.ui-ray-filebrowser-list,
+.ui-ray-buffer-list {
     border:1px solid #fff;
     margin:0;
     padding:0;
 }
-.focus .ui-ray-filebrowser-list {
+.focus .ui-ray-filebrowser-list,
+.focus .ui-ray-buffer-list {
     border:1px solid #fda;
 }
-.ui-ray-filebrowser-list li {
+.ui-ray-filebrowser-list li,
+.ui-ray-buffer-list li {
     border-bottom:1px solid #eee;
     list-style:none;
 }
 
-.ui-ray-filebrowser-list li a {
+.ui-ray-filebrowser-list li a,
+.ui-ray-buffer-list li a {
     display:block;
     font-size:12px;
     padding:4px 10px 4px 30px;
@@ -53,12 +57,14 @@
     background-position: 8px 50%;
 }
 
-.ui-ray-filebrowser-list li a:hover {
+.ui-ray-filebrowser-list li a:hover,
+.ui-ray-buffer-list li a :hover {
     background-color:#f4f4f4;
     color:#111;
 }
 
-.ui-ray-filebrowser-list li.selected a {
+.ui-ray-filebrowser-list li.selected a,
+.ui-ray-buffer-list li.selected a:hover {
     background-color:#def!important;
     color:#269;
 }
@@ -67,7 +73,8 @@
     color:#177D19!important;
 }
 
-.ui-ray-filebrowser-file a {
+.ui-ray-filebrowser-file a,
+.ui-ray-buffer-list li a {
     background-image: url(../img/page_white_text.png);
 }
 
