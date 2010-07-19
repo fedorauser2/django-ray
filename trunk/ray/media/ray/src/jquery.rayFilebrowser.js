@@ -173,7 +173,8 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         for (x in ds.files) {
             if (x.hasOwnProperty) {
                 var f = ds.files[x];
-                o.push('<li class="ui-ray-filebrowser-file"><a href="#fileopen::'+ ds.base_path + f +'">'+ f +'</a></li>');
+                var ext = ui._get_file_extension(f) || 'txt';
+                o.push('<li class="ui-ray-filebrowser-file"><a href="#fileopen::'+ ds.base_path + f +'" class="file '+ ext +'">'+ f +'</a></li>');
             }
         }
         return o;
@@ -187,7 +188,7 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
             if (x.hasOwnProperty) {
                 var d = ds.dirs[x];
                 var lbl = d.replace(/^\/\d+:/, '');
-                o.push('<li class="ui-ray-filebrowser-dir"><a href="#diropen::'+ ds.base_path + d +'/">'+ lbl +'</a></li>');
+                o.push('<li class="ui-ray-filebrowser-dir"><a href="#diropen::'+ ds.base_path + d +'/" class="dir">'+ lbl +'</a></li>');
             }
         }
         return o;
@@ -288,6 +289,14 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
                     }).end();
     },
 
+
+    _get_display_filename: function(buffer) {
+        var ui, label;
+        ui = this;
+        label = buffer.file && buffer.file.path || '[No Name]';
+        return buffer.modified && label + ' [+]' || label;
+    },
+
     _repaint_buffers_list: function(buffers) {
         var ui = this;
         var out = [''];
@@ -297,17 +306,8 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         for (var x in buffers) {
             if (x.hasOwnProperty) {
                 var buffer = buffers[x];
-                if (!buffer.file) {
-                    var label = '[No Name]';
-                }
-                else {
-                    var label = buffer.file.path;
-                    ext = ui._get_file_extension(buffer.file.path)
-                }
-                if (buffer.modified) {
-                    label = label + ' [+]';
-                
-                }
+                var label = ui._get_display_filename(buffer);
+                var ext = buffer.file && ui._get_file_extension(buffer.file.path) || 'txt';
                 out.push('<li><a href="#bufferopen::'+ buffer.id +'" class="file '+ ext +'">'+ label +'</a></li>')
             }
         }
