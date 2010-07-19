@@ -205,9 +205,9 @@ $.widget('ui.ray', $.extend($.ui.rayBase, {
 
         // Bind core events
         ui.element
-            .bind('fileOpen.ray', function(e){ ui.file_open(e.originalEvent.data); })
+            .bind('fileOpen.ray', function(e){ ui.file_open(e.originalEvent.data);  })
             .bind('dirOpen.ray',  function(e){ ui.dir_list(e.originalEvent.data); })
-            .bind('redraw.ray',  function(e){ ui.redraw(); });
+            .bind('redraw.ray',   function(e){ ui.redraw(); });
 
         // Initialte all plugins
         ui.plugin_init();
@@ -248,6 +248,9 @@ $.widget('ui.ray', $.extend($.ui.rayBase, {
         $.getJSON(url, function(rs, status){
             if (status == 'success') {
                 ui._trigger('contentLoaded', { path: file.path, content: rs.content });
+                  if (file.element) {
+                      file.element.addClass('opened'); 
+                  }
             }
         });
     },

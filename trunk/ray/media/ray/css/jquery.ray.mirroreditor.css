@@ -9,11 +9,10 @@
 
 /* Buffers */
 .ui-ray-titlebar {
-    background:none repeat scroll 0 0 #555;
-    color:#ddd;
     font-size:12px;
-    padding:4px 6px;
+    padding:7px 6px;
     font-weight:bold;
+    border-width:0 0 1px 0!important;
     font-family: Verdana,Arial,sans-serif; 
     height:15px;
 }
@@ -74,8 +73,8 @@
 }
 .ui-ray-cursorinfo {
     float:right;
-    color:#ddd;
-    padding:2px 10px;
+    color:#222;
+    padding:6px 12px;
     font-size:90%;
     font-family:Verdana, Arial, sans-serif;
 }
