@@ -177,208 +177,7 @@ var rayToolbarManager = function(el) {
     };
 };
 
-$.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
-    options: {
-        editor_path: "codemirror/js/",
-        indentUnit: 4,
-        undoDepth: 50,
-        undoDelay: 600,
-        lineNumbers: true,
-        textWrapping: false, // bugs line numbers
-        autoMatchParens: true,
-        disableSpellcheck: true,
-        parserfile: [
-            "parsedummy.js",
-            "parsexml.js",
-            "parsecss.js", 
-            "tokenizejavascript.js", 
-            "parsejavascript.js", 
-            "parsehtmlmixed.js",
-            "../contrib/sql/js/parsesql.js", 
-            "../contrib/php/js/tokenizephp.js",
-            "../contrib/php/js/parsephp.js",
-            "../contrib/php/js/parsephphtmlmixed.js",
-            "../contrib/python/js/parsepython.js",
-//            "../contrib/django/js/tokenizedjango.js",
-//            "../contrib/django/js/parsedjango.js",
-//            "../contrib/django/js/parsedjangohtmlmixed.js",
-            "../contrib/diff/js/parsediff.js"
-        ],
-        stylesheet: [
-            /*
-            "../ray/color-schemes/evening/scheme.css",
-            */
-            // TODO: fix hardcoded paths ..
-            "../../media/codemirror/css/xmlcolors.css", 
-            "../../media/codemirror/css/csscolors.css", 
-            "../../media/codemirror/css/jscolors.css", 
-            "../../media/codemirror/contrib/sql/css/sqlcolors.css", 
-            "../../media/codemirror/contrib/php/css/phpcolors.css", 
-            "../../media/codemirror/contrib/python/css/pythoncolors.css", 
-            "../../media/codemirror/contrib/diff/css/diffcolors.css", 
-            "../../media/codemirror/contrib/django/css/djangocolors.css" 
-        ],
-        buttons: [
-            ['editor-options', 
-                {label: 'Browse',   id: 'browse',   icons: {primary:'ui-icon-folder-open'}, callback: 'toggleFilebrowser'}, 
-                {label: 'New file', id: 'new-file', icons: {primary: 'ui-icon-document'}, callback: 'enew'}, 
-                {label: 'Save',     id: 'save',     icons: {primary: 'ui-icon-disk'}, callback: 'save', disabled: true} 
-            ],
-            ['editing-options', 
-                {label: 'Undo', id: 'undo', icons: {primary: 'ui-icon-arrowreturn-1-w'}, callback: 'undo', disabled: true}, 
-                {label: 'Redo', id: 'redo', icons: {primary: 'ui-icon-arrowreturn-1-e'}, callback: 'redo', disabled: true}
-            ],
-            ['buffer-actions',  
-                {label: 'Re-indent',  id: 're-indent',  icons: {primary: 'ui-icon-signal'},   callback: 'reindent'},
-                {label: 'Go to line', id: 'go-to-line', icons: {primary: 'ui-icon-seek-end'}, callback: 'gotoline'}, 
-                {label: 'Settings',   id: 'settings',   icons: {primary: 'ui-icon-gear'},     callback: 'togglesettings'}
-            ]
-        ],
-        magic: {
-            'dummy': { label: 'No Syntax', parser: 'DummyParser' },
-            'html':  { label: 'HTML/CSS/JS', parser: 'HTMLMixedParser' },
-//          'html':  { label: 'Django template', parser: 'DjangoHTMLMixedParser' },
-            'xhtml': { label: 'HTML/CSS/JS', parser: 'HTMLMixedParser' },
-            'php':   { label: 'HTML/CSS/JS/PHP', parser: 'PHPHTMLMixedParser' },
-            'js':    { label: 'JavaScript', parser: 'JSParser' },
-            'py':    { label: 'Python', parser: 'PythonParser' },
-            'css':   { label: 'CSS', parser: 'CSSParser' },
-            'sql':   { label: 'SQL', parser: 'SqlParser' },
-            'patch': { label: 'Diff', parser: 'DiffParser' },
-            'diff':  { label: 'Diff', parser: 'DiffParser' }
-//          'html':  { label: 'HTML+Django', parserfile: ["parsexml.js", "parsecss.js", "tokenizejavascript.js", "parsejavascript.js", "parsedjango.js", "parsehtmldjango.js"], 
-//                stylesheet: ["css/xmlcolors.css", "css/jscolors.css", "css/csscolors.css", "css/djangocolors.css"] },
-        }
-    },
-
-    _create: function() {
-        var ui = this;
-
-        ui.dom = {
-            wrapper: $('<div id="ui-rayMirrorEditor-wrapper" />').appendTo('body'),
-            toolbar: $('<div id="ui-rayMirrorEditor-tollbar-wrapper" />'),
-            editor:  $('<div id="ui-rayMirrorEditor-editor-wrapper" />'),
-        };
-
-        ui.options.path = ui.options.media_path + ui.options.editor_path;
-
-        //ui.options = $.extend($.ui.rayMirrorEditor.defaults, ui.options); // What the ?!
-        ui.buffers = new rayBufferManager();
-        
-        //ui._setup_layout();
-        
-        ui._active_editor = ui.dom.editor;
-
-        // Setup toolbar 
-        ui.toolbar = new rayToolbarManager(ui.dom.toolbar.appendTo(ui.dom.wrapper));
-        ui._build_buttons(ui.toolbar.get('toolbar'));
-        ui.toolbar.setParsers(ui.options.magic);
-
-        ui.toolbar.get('parserswitcher').find('select').bind('change', function(){ 
-            ui.setparser($(':selected', this).data('magic').parser);
-        });
-
-        // Setup known file types that should be handled
-        // with  rayMirrorEditor
-        $.each(ui.options.magic, function (i, m){
-            ui.element.ray('set_mime_type', {extension: i, type: this.widgetName, label: m.label, callback: 'file_open'});
-        });
-
-        // File content has been loaded, process it
-        ui.element.bind('contentLoaded', function (e){
-            ui.e(e.originalEvent.data);
-            ui.toolbar.get_button('undo').button('option', 'disabled', false);
-            ui.toolbar.get_button('redo').button('option', 'disabled', false);
-        });
-
-        ui.element.bind('editorFocus', function(){
-            ui.dom.wrapper.addClass('focus');
-        }).bind('editorBlur', function(){
-            ui.dom.wrapper.removeClass('focus');
-        });
-
-        ui.options = $.extend(ui.options, {
-            cursorActivity: function() {
-                ui._trigger('cursorActivity');
-                ui.toolbar.cursorinfo([ui.exec('currentLine'), ui.exec('cursorPosition').character].join(','));
-            },
-
-            onChange: function() {
-                ui._save_state();
-                //ui.options.parent.trigger($.Event({type:'changed'}));
-            },
-
-            initCallback: function(editor) {
-                ui._guess_parser();
-                var new_buffer = ui.buffers.create();
-                ui.buffers.focus(new_buffer);
-                ui.toolbar.title("[No name]");
-                ui.updateBufferList();
-
-            }
-        });
-        
-        ui.dom.wrapper.css('left', ($('body').rayFilebrowser('isVisible') ? 338: 0));
-        
-        $(window).resize(function(){ ui._repaint.call(ui); });
-
-        ui.dom.editor.appendTo(ui.dom.wrapper);
-        ui._setup_editor(ui.dom.editor);
-        ui._repaint(true);
-    },
-
-    _guess_parser: function(ext) {
-        var ui  = this;
-        ext = ext || 'html';
-        if (ext && ui.options.magic[ext.toLowerCase()]) {
-            return ui.setparser(ui.options.magic[ext].parser);
-        }
-        return ui.setparser('DummyParser');
-    },
-    
-    _repaint: function(firstRepaint) {
-        var ui = this; 
-        var heightGap = firstRepaint && 66 || 58;
-        var widthGap  = firstRepaint && 2 || 0;
-        ui.dom.wrapper.find('.CodeMirror-wrapping').height(window.innerHeight - 67);
-        //ui.dom.wrapper.find('.CodeMirror-wrapping')
-        //    .height(window.innerHeight - heightGap);
-    },
-    
-    // Setup an editor inside a given HTML node
-    _setup_editor: function(parent) {
-        var ui  = this;
-        var tpl = '<textarea style="width:100%;" class="ui-ray-editor-buffer" />';
-        var el  = $(tpl).appendTo(parent).get(0);
-        var ed  = CodeMirror.replace(el);
-        var mi  = new CodeMirror(ed, ui.options);
-
-        $(mi.win).bind('focus', function(){ ui._trigger('editorFocus'); });
-        $(mi.win).bind('blur',  function(){ ui._trigger('editorBlur'); });
-
-        return parent.data({editor: ed, mirror: mi });
-    },
-
-    _save_state: function() {
-        var ui = this;
-        var bf = ui._active_editor.data('buffer');
-        var nc = ui.exec('getCode');
-        if (bf) {
-            if (!bf.modified) { // just be sure to compare only if necessary
-                if (nc !== bf.currentContent) {
-                    bf.modified = true;
-                }
-            }
-            bf.currentContent = nc;
-            var title = bf.file.path;
-            if (bf.modified) {
-                title = title + ' [+]';
-            }
-            ui.toolbar.title(title.split(':')[1]);
-            
-        }
-    },
-
+$.ui.rayEditorCommands = {
     // Open existing buffer
     b: function(bufferID) {
         var ui  = this;
@@ -386,7 +185,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         var obf = ui._active_editor.data('buffer');
         
         // Replacing an open buffer, save its state first
-        if (obf) {
+        if (obf) {ui.exec('historySize').undo
             ui._save_state();
         }
         
@@ -473,28 +272,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         //this._buffers_apply(console.log);
     },
 
-    /* Updates the buffer select input with the current
-     * buffer list (can accept an alternate buffer list)
-     * */
-    updateBufferList: function() {
-        var ui = this;
-        ui._trigger('bufferlistUpdated', {buffers: ui.buffers.all()});
-    },
-
-    toggleFilebrowser: function(e) {
-        var ui = this;
-        var button = $(e.currentTarget);
-        if ($('body').rayFilebrowser('isVisible')) {
-            $('body').rayFilebrowser('hide');
-            button.button('option', 'icons', {primary: 'ui-icon-folder-collapsed'});
-        }
-        else {
-            $('body').rayFilebrowser('show');
-            button.button('option', 'icons', {primary: 'ui-icon-folder-open'});
-        }
-        ui.dom.wrapper.css('left', ($('body').rayFilebrowser('isVisible') ? 338: 0));
-    },
-
     // Execute a CodeMirror command on the active editor
     exec: function(method, args) {
         var ui = this;
@@ -520,9 +297,11 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
 
     undo: function(e) { 
         var ui = this;
+        console.log('aaaaaaaaaaaaaaa', ui.exec('historySize').undo);
         if (ui.exec('historySize').undo === 0) {
-            ui._modified = false;
-            ui.settitle();
+            var bf = ui._active_editor.data('buffer');
+            ui.buffers.set(bf, 'modified', false);
+            ui._save_state();
         }
         else {
             return this.exec('undo'); 
@@ -570,6 +349,235 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         ui.toolbar.setParser(parser);
         ui.exec('setParser', parser);
     },
+};
+
+$.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
+    options: {
+        editor_path: "codemirror/js/",
+        indentUnit: 4,
+        undoDepth: 50,
+        undoDelay: 600,
+        lineNumbers: true,
+        textWrapping: false, // bugs line numbers
+        autoMatchParens: true,
+        disableSpellcheck: true,
+        parserfile: [
+            "parsedummy.js",
+            "parsexml.js",
+            "parsecss.js", 
+            "tokenizejavascript.js", 
+            "parsejavascript.js", 
+            "parsehtmlmixed.js",
+            "../contrib/sql/js/parsesql.js", 
+            "../contrib/php/js/tokenizephp.js",
+            "../contrib/php/js/parsephp.js",
+            "../contrib/php/js/parsephphtmlmixed.js",
+            "../contrib/python/js/parsepython.js",
+//            "../contrib/django/js/tokenizedjango.js",
+//            "../contrib/django/js/parsedjango.js",
+//            "../contrib/django/js/parsedjangohtmlmixed.js",
+            "../contrib/diff/js/parsediff.js"
+        ],
+        stylesheet: [
+            /*
+            "../ray/color-schemes/evening/scheme.css",
+            */
+            // TODO: fix hardcoded paths ..
+            "../../media/codemirror/css/xmlcolors.css", 
+            "../../media/codemirror/css/csscolors.css", 
+            "../../media/codemirror/css/jscolors.css", 
+            "../../media/codemirror/contrib/sql/css/sqlcolors.css", 
+            "../../media/codemirror/contrib/php/css/phpcolors.css", 
+            "../../media/codemirror/contrib/python/css/pythoncolors.css", 
+            "../../media/codemirror/contrib/diff/css/diffcolors.css", 
+            "../../media/codemirror/contrib/django/css/djangocolors.css" 
+        ],
+        buttons: [
+            ['editor-options', 
+                {label: 'Browse',   id: 'browse',   icons: {primary:'ui-icon-folder-open'}, callback: 'toggleFilebrowser'}, 
+                {label: 'New file', id: 'new-file', icons: {primary: 'ui-icon-document'}, callback: 'enew'}, 
+                {label: 'Save',     id: 'save',     icons: {primary: 'ui-icon-disk'}, callback: 'save', disabled: true} 
+            ],
+            ['editing-options', 
+                {label: 'Undo', id: 'undo', icons: {primary: 'ui-icon-arrowreturn-1-w'}, callback: 'undo', disabled: true}, 
+                {label: 'Redo', id: 'redo', icons: {primary: 'ui-icon-arrowreturn-1-e'}, callback: 'redo', disabled: true}
+            ],
+            ['buffer-actions',  
+                {label: 'Re-indent',  id: 're-indent',  icons: {primary: 'ui-icon-signal'},   callback: 'reindent'},
+                {label: 'Go to line', id: 'go-to-line', icons: {primary: 'ui-icon-seek-end'}, callback: 'gotoline'}, 
+                {label: 'Settings',   id: 'settings',   icons: {primary: 'ui-icon-gear'},     callback: 'togglesettings'}
+            ]
+        ],
+        magic: {
+            'dummy': { label: 'No Syntax', parser: 'DummyParser' },
+            'html':  { label: 'HTML/CSS/JS', parser: 'HTMLMixedParser' },
+//          'html':  { label: 'Django template', parser: 'DjangoHTMLMixedParser' },
+            'xhtml': { label: 'HTML/CSS/JS', parser: 'HTMLMixedParser' },
+            'php':   { label: 'HTML/CSS/JS/PHP', parser: 'PHPHTMLMixedParser' },
+            'js':    { label: 'JavaScript', parser: 'JSParser' },
+            'py':    { label: 'Python', parser: 'PythonParser' },
+            'css':   { label: 'CSS', parser: 'CSSParser' },
+            'sql':   { label: 'SQL', parser: 'SqlParser' },
+            'patch': { label: 'Diff', parser: 'DiffParser' },
+            'diff':  { label: 'Diff', parser: 'DiffParser' }
+//          'html':  { label: 'HTML+Django', parserfile: ["parsexml.js", "parsecss.js", "tokenizejavascript.js", "parsejavascript.js", "parsedjango.js", "parsehtmldjango.js"], 
+//                stylesheet: ["css/xmlcolors.css", "css/jscolors.css", "css/csscolors.css", "css/djangocolors.css"] },
+        }
+    },
+
+    _create: function() {
+        var ui = this;
+        console.log('++++', ui.testahah);
+        ui.dom = {
+            wrapper: $('<div id="ui-rayMirrorEditor-wrapper" />').appendTo('body'),
+            toolbar: $('<div id="ui-rayMirrorEditor-tollbar-wrapper" />'),
+            editor:  $('<div id="ui-rayMirrorEditor-editor-wrapper" />'),
+        };
+
+        ui.options.path = ui.options.media_path + ui.options.editor_path;
+
+        //ui.options = $.extend($.ui.rayMirrorEditor.defaults, ui.options); // What the ?!
+        ui.buffers = new rayBufferManager();
+        
+        //ui._setup_layout();
+        
+        ui._active_editor = ui.dom.editor;
+
+        // Setup toolbar 
+        ui.toolbar = new rayToolbarManager(ui.dom.toolbar.appendTo(ui.dom.wrapper));
+        ui._build_buttons(ui.toolbar.get('toolbar'));
+        ui.toolbar.setParsers(ui.options.magic);
+
+        ui.toolbar.get('parserswitcher').find('select').bind('change', function(){ 
+            ui.setparser($(':selected', this).data('magic').parser);
+        });
+
+        // Setup known file types that should be handled
+        // with  rayMirrorEditor
+        $.each(ui.options.magic, function (i, m){
+            ui.element.ray('set_mime_type', {extension: i, type: this.widgetName, label: m.label, callback: 'file_open'});
+        });
+
+        // File content has been loaded, process it
+        ui.element.bind('contentLoaded', function (e){
+            ui.e(e.originalEvent.data);
+            ui.toolbar.get_button('undo').button('option', 'disabled', false);
+            ui.toolbar.get_button('redo').button('option', 'disabled', false);
+        });
+
+        ui.element.bind('editorFocus', function(){
+            ui.dom.wrapper.addClass('focus');
+        }).bind('editorBlur', function(){
+            ui.dom.wrapper.removeClass('focus');
+        });
+
+        ui.options = $.extend(ui.options, {
+            cursorActivity: function() {
+                ui._trigger('cursorActivity');
+                ui.toolbar.cursorinfo([ui.exec('currentLine'), ui.exec('cursorPosition').character].join(','));
+                ui._trigger('editorInitialized');
+            },
+
+            onChange: function() {
+                ui._save_state();
+                ui._trigger('editorChanged');
+            },
+
+            initCallback: function(editor) {
+                ui._guess_parser();
+                var new_buffer = ui.buffers.create();
+                ui.buffers.focus(new_buffer);
+                ui.toolbar.title("Untitled");
+                ui.updateBufferList();
+                ui._trigger('editorInitialized');
+            }
+        });
+        
+        ui.dom.wrapper.css('left', ($('body').rayFilebrowser('isVisible') ? 338: 0));
+        
+        $(window).resize(function(){ ui._repaint.call(ui); });
+
+        ui.dom.editor.appendTo(ui.dom.wrapper);
+        ui._setup_editor(ui.dom.editor);
+        ui._repaint(true);
+    },
+
+    _guess_parser: function(ext) {
+        var ui  = this;
+        ext = ext || 'html';
+        if (ext && ui.options.magic[ext.toLowerCase()]) {
+            return ui.setparser(ui.options.magic[ext].parser);
+        }
+        return ui.setparser('DummyParser');
+    },
+    
+    _repaint: function(firstRepaint) {
+        var ui = this; 
+        var heightGap = firstRepaint && 66 || 58;
+        var widthGap  = firstRepaint && 2 || 0;
+        ui.dom.wrapper.find('.CodeMirror-wrapping').height(window.innerHeight - 67);
+        //ui.dom.wrapper.find('.CodeMirror-wrapping')
+        //    .height(window.innerHeight - heightGap);
+    },
+    
+    // Setup an editor inside a given HTML node
+    _setup_editor: function(parent) {
+        var ui  = this;
+        var tpl = '<textarea style="width:100%;" class="ui-ray-editor-buffer" />';
+        var el  = $(tpl).appendTo(parent).get(0);
+        var ed  = CodeMirror.replace(el);
+        var mi  = new CodeMirror(ed, ui.options);
+
+        $(mi.win).bind('focus', function(){ ui._trigger('editorFocus'); });
+        $(mi.win).bind('blur',  function(){ ui._trigger('editorBlur'); });
+
+        return parent.data({editor: ed, mirror: mi });
+    },
+
+    _save_state: function() {
+        var ui = this;
+        var bf = ui._active_editor.data('buffer');
+        var nc = ui.exec('getCode');
+        if (bf) {
+            if (!bf.modified) { // just be sure to compare only if necessary
+                if (nc !== bf.currentContent) {
+                    bf.modified = true;
+                }
+            }
+            bf.currentContent = nc;
+            var title = bf.file.path;
+            if (bf.modified) {
+                title = title + ' [+]';
+            }
+            console.log('saving state', bf, title);
+            ui.toolbar.title(title.split(':')[1]);
+            
+        }
+    },
+
+
+    /* Updates the buffer select input with the current
+     * buffer list (can accept an alternate buffer list)
+     * */
+    updateBufferList: function() {
+        var ui = this;
+        ui._trigger('bufferlistUpdated', {buffers: ui.buffers.all()});
+    },
+
+    toggleFilebrowser: function(e) {
+        var ui = this;
+        var button = $(e.currentTarget);
+        if ($('body').rayFilebrowser('isVisible')) {
+            $('body').rayFilebrowser('hide');
+            button.button('option', 'icons', {primary: 'ui-icon-folder-collapsed'});
+        }
+        else {
+            $('body').rayFilebrowser('show');
+            button.button('option', 'icons', {primary: 'ui-icon-folder-open'});
+        }
+        ui.dom.wrapper.css('left', ($('body').rayFilebrowser('isVisible') ? 338: 0));
+    },
+
 
 }));
 
