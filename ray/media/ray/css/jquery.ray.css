@@ -21,10 +21,9 @@ iframe {
 }
 .ui-ray-toolbar label {
     font-family:Verdana, Arial, sans-serif;
-    font-size:80%;
     font-weight:normal;
-
 }
+
 .ui-ray-toolbar label select {
     font-size:90%;
 }

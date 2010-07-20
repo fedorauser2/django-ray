@@ -65,7 +65,7 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
     _get_display_filename: function(buffer) {
         var ui, label;
         ui = this;
-        label = buffer.file && buffer.file.path || '[No Name]';
+        label = buffer.file && buffer.file.path || 'Untitled';
         return buffer.modified && label + ' [+]' || label;
     },
 
