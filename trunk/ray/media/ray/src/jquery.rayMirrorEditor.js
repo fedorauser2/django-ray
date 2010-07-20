@@ -27,11 +27,19 @@ var rayBufferManager = function() {
         // buffer will be created
         create: function (f) {
             var i = bm._inc = bm._inc + 1;
+            var update_buffer = function(nc) {
+                // compare only if necessary
+                if (!this.modified) { 
+                    this.modified = (nc !== this.currentContent);
+                    this.currentContent = nc;
+                }
+            };
             var b = { 
                 id: i, 
                 file: f || false,
                 modified: false,
-                currentContent: f && f.content || false
+                currentContent: f && f.content || false,
+                updateContent: update_buffer
             };
             bm._buffers[i] = b;
             return b;
@@ -185,12 +193,21 @@ $.ui.rayEditorCommands = {
         var obf = ui._active_editor.data('buffer');
         
         // Replacing an open buffer, save its state first
-        if (obf) {ui.exec('historySize').undo
+        if (obf) {
             ui._save_state();
         }
         
         ui._active_editor.data('buffer', nbf);
         ui.exec('setCode', nbf.currentContent);
+        console.log('// Replacing cursor to its saved position.', nbf.currentLine, nbf.cursorPos);
+        if (nbf.currentLine) {
+            ui.exec('jumpToLine', nbf.currentLine);
+        }
+        
+        if (nbf.cursorPos) {
+            ui.exec('selectLines', nbf.cursorPos);
+        }
+
         if (nbf.file.path) {
             ui._guess_parser(ui._get_file_extension(nbf.file.path));
         }
@@ -239,6 +256,8 @@ $.ui.rayEditorCommands = {
             ui._guess_parser(ui._get_file_extension(file.path));
         }
         ui.updateBufferList();
+
+
     },
 
     // Create a new untitled/unsaved file
@@ -297,7 +316,7 @@ $.ui.rayEditorCommands = {
 
     undo: function(e) { 
         var ui = this;
-        console.log('aaaaaaaaaaaaaaa', ui.exec('historySize').undo);
+        console.log('~~~~~~~~~~~~~', ui.exec('historySize').undo, ui.exec('historySize'));
         if (ui.exec('historySize').undo === 0) {
             var bf = ui._active_editor.data('buffer');
             ui.buffers.set(bf, 'modified', false);
@@ -387,7 +406,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
             "../../media/codemirror/css/csscolors.css", 
             "../../media/codemirror/css/jscolors.css", 
             "../../media/codemirror/contrib/sql/css/sqlcolors.css", 
-            "../../media/codemirror/contrib/php/css/phpcolors.css", 
+            "../../media/codemirror/contrib/php/css/phpcolors.css",
             "../../media/codemirror/contrib/python/css/pythoncolors.css", 
             "../../media/codemirror/contrib/diff/css/diffcolors.css", 
             "../../media/codemirror/contrib/django/css/djangocolors.css" 
@@ -403,8 +422,8 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
                 {label: 'Redo', id: 'redo', icons: {primary: 'ui-icon-arrowreturn-1-e'}, callback: 'redo', disabled: true}
             ],
             ['buffer-actions',  
-                {label: 'Re-indent',  id: 're-indent',  icons: {primary: 'ui-icon-signal'},   callback: 'reindent'},
-                {label: 'Go to line', id: 'go-to-line', icons: {primary: 'ui-icon-seek-end'}, callback: 'gotoline'}, 
+                {label: 'Re-indent',  id: 're-indent',  icons: {primary: 'ui-icon-signal'},   callback: 'reindent', disabled: true},
+                {label: 'Go to line', id: 'go-to-line', icons: {primary: 'ui-icon-seek-end'}, callback: 'gotoline', disabled: true}, 
                 {label: 'Settings',   id: 'settings',   icons: {primary: 'ui-icon-gear'},     callback: 'togglesettings'}
             ]
         ],
@@ -427,7 +446,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
 
     _create: function() {
         var ui = this;
-        console.log('++++', ui.testahah);
         ui.dom = {
             wrapper: $('<div id="ui-rayMirrorEditor-wrapper" />').appendTo('body'),
             toolbar: $('<div id="ui-rayMirrorEditor-tollbar-wrapper" />'),
@@ -473,9 +491,18 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
 
         ui.options = $.extend(ui.options, {
             cursorActivity: function() {
-                ui._trigger('cursorActivity');
                 ui.toolbar.cursorinfo([ui.exec('currentLine'), ui.exec('cursorPosition').character].join(','));
-                ui._trigger('editorInitialized');
+                ui._trigger('cursorActivity');
+                // All the rest below is a kind of hack to workaround the 
+                // editor's change delay which makes it hard to fire an event
+                // at a precise moment without an annoying lag. 
+                var bf = ui._active_editor.data('buffer');
+                if (!bf.modified) {
+                    bf.updateContent(ui.exec('getCode'));
+                    if (bf.modified) {
+                        ui._save_state();
+                    }
+                }
             },
 
             onChange: function() {
@@ -539,19 +566,17 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
         var bf = ui._active_editor.data('buffer');
         var nc = ui.exec('getCode');
         if (bf) {
-            if (!bf.modified) { // just be sure to compare only if necessary
-                if (nc !== bf.currentContent) {
-                    bf.modified = true;
-                }
-            }
-            bf.currentContent = nc;
+            bf.updateContent(nc);
+
+            // TODO: Does not work :| + should remember text selection
+            //bf.currentLine = ui.exec('currentLine');
+            //bf.cursorPos = ui.exec('cursorPosition').character;
+
             var title = bf.file.path;
             if (bf.modified) {
                 title = title + ' [+]';
             }
-            console.log('saving state', bf, title);
             ui.toolbar.title(title.split(':')[1]);
-            
         }
     },
 
@@ -576,9 +601,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
             button.button('option', 'icons', {primary: 'ui-icon-folder-open'});
         }
         ui.dom.wrapper.css('left', ($('body').rayFilebrowser('isVisible') ? 338: 0));
-    },
-
-
+    }
 }));
 
 /*
