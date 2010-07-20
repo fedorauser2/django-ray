@@ -70,23 +70,27 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
     },
 
     _keyboardNav: function(e) {
-        var ui = this;
-        var selected = function() {
-            return ui.dom.wrapper.find('.ui-ray-filebrowser-list li.selected');
-        };
+        var ui, list, selector, selected, path, p;
+        ui = this;
+        selector = $('#browser').is(':visible') 
+                        && '.ui-ray-filebrowser-list' 
+                        || '.ui-ray-buffer-list';
+
+        list = ui.dom.wrapper.find(selector);
+        selected = function() { return list.find('li.selected'); };
         if (ui.options.hasFocus) {
             //console.log(e.keyCode);
             switch(e.keyCode) {
                 
                 // Backspace
                 case 8: 
-                    if (ui.cwd) {
-                        var p = ui.cwd.split('/');
+                    if (ui.cwd && selector == '.ui-ray-filebrowser-list') {
+                        p = ui.cwd.split('/');
                         if (p.length < 4) {
-                            var path = '';
+                            path = '';
                         }
                         else {
-                            var path = '/'+ p.slice(1, -2).join('/') + '/';
+                            path = '/'+ p.slice(1, -2).join('/') + '/';
                         }
                         ui.diropen(path)
                     }
@@ -336,8 +340,8 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
     // data not updated
     _repaint: function() {
         var ui = this;
-        ui.dom.wrapper.height(window.innerHeight - 2); 
-        ui.dom.wrapper.find('.ui-ray-filebrowser-list').height(window.innerHeight - 33);
+        ui.dom.wrapper.find('.CodeMirror-wrapping').height(window.innerHeight - 63);
+        ui.dom.wrapper.find('.ui-ray-filebrowser-list').height(window.innerHeight - 64);
         ui.dom.tab[2].find('.ui-ray-buffer-list').height(window.innerHeight - 33);
     },
 
