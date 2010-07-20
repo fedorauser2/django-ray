@@ -291,6 +291,12 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
             ui.toolbar.get_button('redo').button('option', 'disabled', false);
         });
 
+        ui.element.bind('editorFocus', function(){
+            ui.dom.wrapper.addClass('focus');
+        }).bind('editorBlur', function(){
+            ui.dom.wrapper.removeClass('focus');
+        });
+
         ui.options = $.extend(ui.options, {
             cursorActivity: function() {
                 ui._trigger('cursorActivity');
@@ -332,11 +338,11 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
     
     _repaint: function(firstRepaint) {
         var ui = this; 
-        var heightGap = firstRepaint && 61 || 58;
+        var heightGap = firstRepaint && 66 || 58;
         var widthGap  = firstRepaint && 2 || 0;
-
-        ui.dom.wrapper.find('.CodeMirror-wrapping')
-            .height(window.innerHeight - heightGap);
+        ui.dom.wrapper.find('.CodeMirror-wrapping').height(window.innerHeight - 67);
+        //ui.dom.wrapper.find('.CodeMirror-wrapping')
+        //    .height(window.innerHeight - heightGap);
     },
     
     // Setup an editor inside a given HTML node
@@ -347,9 +353,8 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, {
         var ed  = CodeMirror.replace(el);
         var mi  = new CodeMirror(ed, ui.options);
 
-        $(mi.win).bind('focus', function(){
-            ui._trigger('editorFocus');
-        });
+        $(mi.win).bind('focus', function(){ ui._trigger('editorFocus'); });
+        $(mi.win).bind('blur',  function(){ ui._trigger('editorBlur'); });
 
         return parent.data({editor: ed, mirror: mi });
     },

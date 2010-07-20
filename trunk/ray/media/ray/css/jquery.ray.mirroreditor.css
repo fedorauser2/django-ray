@@ -61,6 +61,7 @@
     background:none repeat scroll 0 0 #F4F4F4;
     border-right:1px solid #DDDDDD;
     width:30px;
+    margin:1px;
 }
 .CodeMirror-line-numbers div {
     text-align:right;
@@ -81,7 +82,19 @@
 .ui-ray-syntax-selector {
     float:right;
 }
-
+.CodeMirror-wrapping {
+    border:1px solid #fff;
+    margin-right:1px;
+}
+.focus .CodeMirror-wrapping {
+    border:1px solid #fd7;
+}
+.CodeMirror-wrapping iframe {
+    background:#f1f2f1;
+}
+.focus .CodeMirror-wrapping iframe {
+    background:#f4f4f4;
+}
 #ui-rayMirrorEditor-tollbar-wrapper .ui-button-text {
     font-size:9pt!important;
 }
