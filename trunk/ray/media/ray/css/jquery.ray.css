@@ -42,6 +42,18 @@ iframe {
 .ui-button {
     height:26px;
 }
+.ui-button-icon-only {
+    padding:0.3em!important;
+    width:1.6em!important;
+    margin-right:0px!important;
+}
+.ui-button-icon-only .ui-button-text {
+    padding:0.5em!important;
+}
+.ui-button-icon-only .ui-icon {
+    margin:-11px 0 0 -11px!important;
+}
+
 .workspace {
     margin:0;
     border:0;

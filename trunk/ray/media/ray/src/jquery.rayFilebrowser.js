@@ -76,14 +76,13 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
                         && '.ui-ray-filebrowser-list' 
                         || '.ui-ray-buffer-list';
 
-        list = ui.dom.wrapper.find(selector);
+        list     = ui.dom.wrapper.find(selector);
         selected = function() { return list.find('li.selected'); };
+
         if (ui.options.hasFocus) {
-            //console.log(e.keyCode);
             switch(e.keyCode) {
-                
-                // Backspace
-                case 8: 
+
+                case $.ui.keyCode.BACKSPACE: 
                     if (ui.cwd && selector == '.ui-ray-filebrowser-list') {
                         p = ui.cwd.split('/');
                         if (p.length < 4) {
@@ -96,25 +95,24 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
                     }
                 break;
 
-                // Enter
-                case 13: 
+                case $.ui.keyCode.ENTER: 
                     ui._command_callback.apply(selected().find('a'), [e, ui]); 
                 break;
 
-                // Up
-                case 38: 
+                case $.ui.keyCode.UP: 
                     if (selected().is(':first-child')) {
-                        selected().removeClass('selected').parent().find('li:last-child').addClass('selected');
+                        selected().removeClass('selected')
+                            .parent().find('li:last-child').addClass('selected');
                     }
                     else {
                         selected().removeClass('selected').prev().addClass('selected');
                     }
                 break;
 
-                // Down
-                case 40: 
+                case $.ui.keyCode.DOWN: 
                     if (selected().is(':last-child')) {
-                        selected().removeClass('selected').parent().find('li:first-child').addClass('selected');
+                        selected().removeClass('selected')
+                            .parent().find('li:first-child').addClass('selected');
                     }
                     else {
                         selected().removeClass('selected').next().addClass('selected');
@@ -129,10 +127,8 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
 
         ui.dom.wrapper = $([
             '<div class="ui-ray-filebrowser-wrapper">',
-                '<ul>',
-                    '<li><a href="#browser">Browser</a></li>',
-                    '<li><a href="#buffers">Opened Files</a></li>',
-                '</ul>',
+                '<ul><li><a href="#browser">Browser</a></li>',
+                '<li><a href="#buffers">Opened Files</a></li></ul>',
                 '<div id="browser"></div>',
                 '<div id="buffers"><ul class="ui-ray-buffer-list"></ul></div>',
             '</div>'].join(''))
@@ -154,14 +150,7 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         });
         ui._trigger('dirOpen', { path: '?path=/' });
 
-        $('body')
-          //.bind('dirOpened', function(e) {
-          //      console.log(e);
-          //      console.log(e.originalEvent.data);
-          //    if (e.originalEvent.data.element) {
-          //        e.originalEvent.data.element.addClass('opened'); 
-          //    }
-          //})
+        ui.element 
             .bind('bufferlistUpdated', function(e){
                 ui._repaint_buffers_list(e.originalEvent.data.buffers);
             })
@@ -170,7 +159,6 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         $(window).resize(function(){
             ui._repaint.call(ui);
         });
-
     },
     
     _datasource: {
@@ -205,6 +193,10 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         return o;
     },
 
+    _swap_class: function(el, cn) {
+        return $(el).parent().addClass(cn).siblings().removeClass(cn);
+    },
+
     /*  Builds the file/dir list from ui._datasource 
      *  and binds the necessary events.
      * */
@@ -228,13 +220,14 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
             o = $('<ul class="ui-ray-filebrowser-list">'+ d.join('') + f.join('') +'</ul>');
             return o.find('a')
                     .bind('click', function(e){
-                        $(this).parent().addClass('selected')
-                            .siblings().removeClass('selected');
+                        ui._swap_class(this, 'selected');
                         e.preventDefault();
                         return false;
                     })
                     .bind('dblclick', function(e){ 
                         ui._command_callback.apply(this, [e, ui]); 
+                        e.preventDefault();
+                        return false;
                     })
                     .first().click().end()
                 .end();
@@ -319,13 +312,14 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
             
         list.html(items).find('a')
             .bind('click', function(e){
-                $(this).parent().addClass('selected')
-                    .siblings().removeClass('selected');
+                ui._swap_class(this, 'selected');
                 e.preventDefault();
                 return false;
             })
             .bind('dblclick', function(e){ 
                 ui._command_callback.apply(this, [e, ui]); 
+                e.preventDefault();
+                return false;
             });
     },
 
@@ -343,8 +337,7 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
         ui.dom.wrapper.find('.CodeMirror-wrapping').height(window.innerHeight - 63);
         ui.dom.wrapper.find('.ui-ray-filebrowser-list').height(window.innerHeight - 64);
         ui.dom.tab[2].find('.ui-ray-buffer-list').height(window.innerHeight - 33);
-    },
-
+    }
 });
 
 $.widget('ui.rayFilebrowser', RayFileBrowser);

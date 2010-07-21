@@ -94,11 +94,28 @@ $.ui.rayBase = {
     _button: function (b) {
         var type = b.type && b.type || 'button';
         var btn = $('<'+ type +' />');
+        var build_menu = function(b) {
+            var menu = ['<ul class="ui-toolbar-menu">'];
+            for (var x = 0; x < b.dropmenu.length; x++) {
+                if (b.dropmenu[x]) {
+                    menu.push('<li><a href="#">'+ b.dropmenu[x].label +'</a></li>');
+                }
+            }
+            menu.push('</ul>');
+            return $(menu.join(''));
+        };
         if (b.id) {
             btn.attr('id', b.id);
         }
         if (b.label) {
             btn.text(b.label);
+        }
+        if (b.dropmenu) {
+            var m = build_menu(b);
+            m.hide().appendTo('body');
+            btn.bind('click.rayToolbarMenu', function(){
+                m.toggle();      
+            });
         }
         return btn.button(b);
      },
@@ -128,26 +145,31 @@ $.ui.rayBase = {
         var ui = this;
 
         var button = function(options) {
-            return ui._button(options)
-                        .bind('click.rayEditor', function(e) {
-                            ui[options.callback].apply(ui, [e]); });
+            var btn = ui._button(options);
+            if (options.callback && ui[options.callback]) {
+                btn.bind('click.rayEditor', function(e) {
+                    ui[options.callback].apply(ui, [e]); 
+                });
+            }
+            return btn; 
         };
 
         $.each(ui.options.buttons, function(){
             // button set
             if ($.isArray(this) && typeof(this[0]) == 'string') {
                 var set   = [];
-                var label = 'ray-window-'+ this[0];
                 $.each(this, function (i, b){
                     if (i > 0) {
                         set.push(button(b));
                     }
                 });
-                ui._buttonSet(label, set).appendTo(appendTo);
+                ui._buttonSet(this[0], set).appendTo(appendTo);
             }
             // single button
-            else if (this.callback) {
-                button(this.label, this.icon, 'none', this.callback).appendTo(appendTo);
+            else {
+                if (this.callback) {
+                    button(this.label, this.icon, 'none', this.callback).appendTo(appendTo);
+                }
             }
         });
     },
