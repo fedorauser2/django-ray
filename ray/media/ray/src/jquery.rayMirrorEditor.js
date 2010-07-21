@@ -199,7 +199,6 @@ $.ui.rayEditorCommands = {
         
         ui._active_editor.data('buffer', nbf);
         ui.exec('setCode', nbf.currentContent);
-        console.log('// Replacing cursor to its saved position.', nbf.currentLine, nbf.cursorPos);
         if (nbf.currentLine) {
             ui.exec('jumpToLine', nbf.currentLine);
         }
@@ -316,7 +315,6 @@ $.ui.rayEditorCommands = {
 
     undo: function(e) { 
         var ui = this;
-        console.log('~~~~~~~~~~~~~', ui.exec('historySize').undo, ui.exec('historySize'));
         if (ui.exec('historySize').undo === 0) {
             var bf = ui._active_editor.data('buffer');
             ui.buffers.set(bf, 'modified', false);
@@ -412,10 +410,24 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
             "../../media/codemirror/contrib/django/css/djangocolors.css" 
         ],
         buttons: [
-            ['editor-options', 
-                {label: 'Browse',   id: 'browse',   icons: {primary:'ui-icon-folder-open'}, callback: 'toggleFilebrowser'}, 
+            ['file-browser',
+                {label: 'Browse',   id: 'browse',   icons: {primary:'ui-icon-folder-open'}, callback: 'toggleFilebrowser'},
+            ],
+            ['new-file', 
                 {label: 'New file', id: 'new-file', icons: {primary: 'ui-icon-document'}, callback: 'enew'}, 
-                {label: 'Save',     id: 'save',     icons: {primary: 'ui-icon-disk'}, callback: 'save', disabled: true} 
+                {text:  false,      id: 'new-file-menu', icons: {primary: 'ui-icon-triangle-1-s'}, callback: function(){}, dropmenu: [
+                    {label: 'New from copy of this buffer', callback: function(){}},  
+                    {label: 'New from template', callback: function(){}},  
+                    {label: 'New template', callback: function(){}},  
+                ]}, 
+            ],
+            ['save-buffer', 
+                {label: 'Save',     id: 'save',     icons: {primary: 'ui-icon-disk'}, callback: 'save', disabled: true},
+                {text:  false,      id: 'save-menu', icons: {primary: 'ui-icon-triangle-1-s'}, callback: function(){}, menu: [
+                    {label: 'Save and commit (SVN)', callback: function(){}},  
+                    {label: 'Save as', callback: function(){}},  
+                    {label: 'Save a copy', callback: function(){}},  
+                ]}, 
             ],
             ['editing-options', 
                 {label: 'Undo', id: 'undo', icons: {primary: 'ui-icon-arrowreturn-1-w'}, callback: 'undo', disabled: true}, 
