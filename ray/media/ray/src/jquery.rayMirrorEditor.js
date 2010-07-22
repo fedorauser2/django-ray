@@ -178,8 +178,19 @@ var rayToolbarManager = function(el) {
         },
 
         get_button: function(id) {
-            var ui = this;
-            return tb.dom.toolbar.find('#'+ id +'.ui-button');
+            var ui, x, sel, list;
+            ui = this;
+            if ($.isArray(id)) {
+                list = [];
+                for (x=0;x<=id.length;x++) {
+                    list.push('#'+ id[x] +'.ui-button');
+                }
+                sel = lis.join(', ');
+            }
+            else {
+                sel = '#'+ id +'.ui-button';
+            }
+            return tb.dom.toolbar.find(sel);
         }
 
     };
@@ -415,18 +426,18 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
             ],
             ['new-file', 
                 {label: 'New file', id: 'new-file', icons: {primary: 'ui-icon-document'}, callback: 'enew'}, 
-                {text:  false,      id: 'new-file-menu', icons: {primary: 'ui-icon-triangle-1-s'}, callback: function(){}, dropmenu: [
+                {text:  false,      id: 'new-file-menu', icons: {primary: 'ui-icon-triangle-1-s'}, dropmenu: [
                     {label: 'New from copy of this buffer', callback: function(){}},  
-                    {label: 'New from template', callback: function(){}},  
+                    {label: 'New from template awfeaw ef ', callback: function(){}},  
                     {label: 'New template', callback: function(){}},  
                 ]}, 
             ],
             ['save-buffer', 
                 {label: 'Save',     id: 'save',     icons: {primary: 'ui-icon-disk'}, callback: 'save', disabled: true},
-                {text:  false,      id: 'save-menu', icons: {primary: 'ui-icon-triangle-1-s'}, callback: function(){}, menu: [
-                    {label: 'Save and commit (SVN)', callback: function(){}},  
-                    {label: 'Save as', callback: function(){}},  
-                    {label: 'Save a copy', callback: function(){}},  
+                {text:  false,      id: 'save-menu', icons: {primary: 'ui-icon-triangle-1-s'}, disabled: true, menu: [
+                    {label: 'Save and commit (SVN)', callback: function(){ console.log('save / commit '); }},  
+                    {label: 'Save as', callback: function(){ console.log('save as'); }},  
+                    {label: 'Save a copy', callback: function(){ console.log('save / copy'); }},  
                 ]}, 
             ],
             ['editing-options', 
@@ -491,8 +502,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
         // File content has been loaded, process it
         ui.element.bind('contentLoaded', function (e){
             ui.e(e.originalEvent.data);
-            ui.toolbar.get_button('undo').button('option', 'disabled', false);
-            ui.toolbar.get_button('redo').button('option', 'disabled', false);
+            ui.toolbar.get_button(['undo', 'redo','save','save-menu']).button('option', 'disabled', false);
         });
 
         ui.element.bind('editorFocus', function(){

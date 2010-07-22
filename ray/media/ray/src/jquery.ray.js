@@ -89,20 +89,40 @@ $.ui.rayBase = {
         }
     },
 
+    _attach_state_events: function(el) {
+        var ui = this;
+        return $(el).hover(function(){
+            $(this).removeClass('ui-state-default').addClass('ui-state-hover');
+        }, function(){
+            $(this).removeClass('ui-state-hover').addClass('ui-state-default');
+        });
+    },
+
     /* Create a button widget
      * */
     _button: function (b) {
+        var ui = this;
         var type = b.type && b.type || 'button';
         var btn = $('<'+ type +' />');
         var build_menu = function(b) {
-            var menu = ['<ul class="ui-toolbar-menu">'];
+            var menu = $('<ul class="ui-toolbar-menu">');
             for (var x = 0; x < b.dropmenu.length; x++) {
                 if (b.dropmenu[x]) {
-                    menu.push('<li><a href="#">'+ b.dropmenu[x].label +'</a></li>');
+                    var li = $('<li />');
+                    var a  = $('<a />').text(b.dropmenu[x].label);
+                    var dm = b.dropmenu[x];
+                    if (dm.callback) {
+                        console.log(dm.callback);
+                        a.bind('click.rayToolbarMenu', function(e){
+                               console.log('test');
+                            dm.callback.apply(ui, [e]); 
+                        });
+                    }
+                    menu.append(li.append(a));
                 }
             }
-            menu.push('</ul>');
-            return $(menu.join(''));
+            ui._attach_state_events(menu.find('a'));
+            return menu.hide();
         };
         if (b.id) {
             btn.attr('id', b.id);
@@ -112,9 +132,31 @@ $.ui.rayBase = {
         }
         if (b.dropmenu) {
             var m = build_menu(b);
-            m.hide().appendTo('body');
-            btn.bind('click.rayToolbarMenu', function(){
-                m.toggle();      
+            m.appendTo('body');
+            btn.bind('click', function(){
+                if (m.is(':visible')) {
+                    m.hide();
+                }
+                else {
+                    m.position({
+                        my: 'left top',
+                        at: 'left bottom',
+                        of: $(this).prev(),
+                        offset: '1 -18',
+                    }).show();
+                    setTimeout(function(){
+                        ui.element
+                            .one('click.menuBlur', function() {
+                                m.hide();
+                                $(this).unbind('.menuBlur');
+                            })
+                            .one('editorFocus.menuBlur', function() {
+                                m.hide();
+                                $(this).unbind('.menuBlur');
+                            });
+                    }, 300);
+                }
+
             });
         }
         return btn.button(b);
