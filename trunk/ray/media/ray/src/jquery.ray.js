@@ -112,9 +112,7 @@ $.ui.rayBase = {
                     var a  = $('<a />').text(b.dropmenu[x].label);
                     var dm = b.dropmenu[x];
                     if (dm.callback) {
-                        console.log(dm.callback);
                         a.bind('click.rayToolbarMenu', function(e){
-                               console.log('test');
                             dm.callback.apply(ui, [e]); 
                         });
                     }
@@ -247,7 +245,6 @@ if ( typeof console !== 'undefined' && typeof console.log !== 'undefined') {
         catch (e) {
             var out = [];
             for (var x in arguments) { out.push(arguments[x]); }
-            console.log(out.join(', '));
         }
     };
 }

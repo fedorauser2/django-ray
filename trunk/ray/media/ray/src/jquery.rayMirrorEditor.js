@@ -185,7 +185,7 @@ var rayToolbarManager = function(el) {
                 for (x=0;x<=id.length;x++) {
                     list.push('#'+ id[x] +'.ui-button');
                 }
-                sel = lis.join(', ');
+                sel = list.join(', ');
             }
             else {
                 sel = '#'+ id +'.ui-button';
