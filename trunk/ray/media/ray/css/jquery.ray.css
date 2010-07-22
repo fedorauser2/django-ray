@@ -199,3 +199,28 @@ dl a {
     list-style:none;
 }
 
+
+
+.ui-toolbar-menu {
+    background:#eee;
+    border:1px solid #bbb;
+    padding:0;
+    position:absolute;
+    z-index:1000;
+    -moz-border-radius:0 0 3px 3px;
+    -moz-box-shadow: 3px 3px 18px #ddd;
+}
+
+.ui-toolbar-menu li {
+    list-style:none;
+}
+.ui-toolbar-menu a {
+    border-bottom:1px solid #ddd;
+    color:#555;
+    display:block;
+    font-family:Verdana,Arial,sans-serif;
+    font-size:0.8em;
+    padding:3px 7px;
+    text-decoration:none;    
+    cursor:pointer!important;
+}
