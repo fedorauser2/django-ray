@@ -8,6 +8,7 @@ from django.conf import settings
 urlpatterns = patterns('',
 
     (r'^ray/', include('ray.urls')),
+
     url(r'^media/(.*)$', 'django.views.static.serve', {
         'document_root': settings.MEDIA_ROOT,
     }),
