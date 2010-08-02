@@ -1,219 +1,23 @@
-var rayBufferManager = function() {
-    var bm  = this;
-    bm._inc = 0;
-    bm._buffers = {};
-
-    return {
-
-        // Focus a specified buffer takes a buffer object as argument
-        focus: function(buffer) {
-            this.invoke(function(i, b){
-                b.has_focus = (b.id === buffer.id) && true || false;
-            });
-        },
-
-        // Invoke a callback method on all buffers
-        invoke: function (method) {
-            return $.each(bm._buffers, method);
-        },
-
-        // Returns all buffers
-        all: function () {
-            return bm._buffers;
-        },
-
-        // Creates a new buffer, takes file argument
-        // if no file is provided a blank/untitled 
-        // buffer will be created
-        create: function (f) {
-            var i = bm._inc = bm._inc + 1;
-            var update_buffer = function(nc) {
-                // compare only if necessary
-                if (!this.modified) { 
-                    this.modified = (nc !== this.currentContent);
-                    this.currentContent = nc;
-                }
-            };
-            var b = { 
-                id: i, 
-                file: f || false,
-                modified: false,
-                currentContent: f && f.content || false,
-                updateContent: update_buffer
-            };
-            bm._buffers[i] = b;
-            return b;
-        },
-
-        // Takes a files argument and return its associated buffer, if none exist
-        // it creates it and returns the created buffer
-        getOrCreate: function (f) {
-            var buffer = this.getByPath(f.path);
-            if (!buffer) {
-                buffer = this.create(f);
-                buffer.created = true;
-            }
-            else {
-                buffer.created = false;
-            }
-            this.focus(buffer);
-            return buffer;
-        },
-
-        // Sets a property for a specified buffer
-        set: function(b, k, v) {
-            var bf = this.get(b);
-            if (bf) {
-                bf[k] = v;
-                return v;
-            }
-            else {
-                return false;
-            }
-        },
-
-        // Takes either a file or a id and returns the buffer associated with it
-        get: function(b) {
-            return b.path && this.getByPath(b.file.path) || this.getById(b);
-        },
-
-        // Returns a buffer that matches a given id
-        getById: function(id) {
-            try {
-                return bm._buffers[id];
-            }
-            catch (e) {
-                return false;
-            }
-        },
-
-        // Returns a buffer that matches a given path 
-        getByPath: function (p) {
-            var out = false;
-            $.each(bm._buffers, function(i, v){
-                if (v.file.path == p) { out = v; }
-            });
-            return out;
-        },
-
-        // Returns the buffer that is currently focused.
-        getFocused: function() {
-            return this.getByProperty('has_focus', true);
-        },
-
-        // Find a buffer that has a given property that matches a given value
-        getByProperty: function (p, v) {
-            var out = false;
-            $.each(bm._buffers, function(i, v){
-                if (p === v) { 
-                    out = v; 
-                    return true;
-                }
-            });
-            return out;
-        }
-    };
-};
-
-
-var rayToolbarManager = function(el) {
-    var tb = this;
-    tb.dom = {
-        titlebar:   $('<div class="ui-ray-titlebar ui-widget-header" />'),
-        toolbar:    $('<div class="ui-widget-header ui-helper-reset ui-helper-clearfix ui-ray-toolbar" />'),
-        cursorinfo: $('<span class="ui-ray-cursorinfo" />'),
-        parserswitcher: $('<label class="ui-ray-syntax-selector">Syntax: <select /></label>'),
-        rightset:   $('<div style="float:right;margin-top:2px;" />')
-    };
-
-    tb.dom.rightset.append(tb.dom.parserswitcher).appendTo(tb.dom.toolbar);
-    tb.el = el.append(tb.dom.cursorinfo, tb.dom.titlebar, tb.dom.toolbar);
-
-    return {
-        // Add Syntax items to syntax selector
-        setParsers: function(parsers) {
-            var s = tb.dom.parserswitcher.find('select');
-            for (var x in parsers) {
-                if (x.hasOwnProperty) {
-                    $('<option>').data('magic', parsers[x])
-                        .val(x).text(parsers[x].label)
-                        .appendTo(s);
-                }
-            }
-                    
-        },
-
-        setParser: function(parser) {
-            $.each(tb.dom.parserswitcher.find('option'), function() {
-                var magic = $(this).data('magic');
-                if (magic.parser == parser) {
-                    $(this).attr('selected', true).siblings().attr('selected', false);
-                } 
-            });
-        },
-
-        get: function(el) {
-            try {
-                return tb.dom[el];
-            }
-            catch (e) {
-                return false;
-            };
-        },
-        cursorinfo: function(i) {
-            if (i) {
-                tb.dom.cursorinfo.text(i);
-            }            
-            else {
-                return tb.dom.cursorinfo.text();
-            }
-        },
-        title: function(i) {
-            if (i) {
-                tb.dom.titlebar.text(i);
-            }
-            else {
-                return tb.dom.titlebar.text();
-            }
-        },
-
-        get_button: function(id) {
-            var ui, x, sel, list;
-            ui = this;
-            if ($.isArray(id)) {
-                list = [];
-                for (x=0;x<=id.length;x++) {
-                    list.push('#'+ id[x] +'.ui-button');
-                }
-                sel = list.join(', ');
-            }
-            else {
-                sel = '#'+ id +'.ui-button';
-            }
-            return tb.dom.toolbar.find(sel);
-        }
-
-    };
-};
 
 $.ui.rayEditorCommands = {
-    // Open existing buffer
+    // Opens existing buffer
     b: function(bufferID) {
         var ui  = this;
         var nbf = ui.buffers.get(bufferID)
-        var obf = ui._active_editor.data('buffer');
+        var obf = ui.buffers.getFocused();
         
         // Replacing an open buffer, save its state first
         if (obf) {
             ui._save_state();
         }
         
-        ui._active_editor.data('buffer', nbf);
-        ui.exec('setCode', nbf.currentContent);
+        ui.buffers.focus(nbf);
+        ui.exec('setCode', nbf.currentContent || '');
+
+        /*
         if (nbf.currentLine) {
             ui.exec('jumpToLine', nbf.currentLine);
         }
-        
         if (nbf.cursorPos) {
             ui.exec('selectLines', nbf.cursorPos);
         }
@@ -221,13 +25,14 @@ $.ui.rayEditorCommands = {
         if (nbf.file.path) {
             ui._guess_parser(ui._get_file_extension(nbf.file.path));
         }
-        ui._save_state();
+        */
+        ui._trigger('bufferOpened', {buffer: nbf});
     },
 
     // New buffer from file
     e: function(file) {
         var ui = this;
-        var obf = ui._active_editor.data('buffer');
+        var obf = ui.buffers.getFocused();
         var nbf = ui.buffers.getOrCreate(file);
 
         // Replacing an open buffer, save its state first
@@ -235,7 +40,7 @@ $.ui.rayEditorCommands = {
             ui._save_state();
         }
         
-        ui._active_editor.data('buffer', nbf);
+        ui.buffers.focus(nbf);
 
         // Buffer has been loaded from cache
         // check if it has changed since last open
@@ -255,25 +60,24 @@ $.ui.rayEditorCommands = {
             else {
                 ui.exec('setCode', file.content);
             }
+            ui._trigger('bufferOpened', {buffer: nbf});
         }
         // New buffer has been loaded from
         // server
         else {
             ui.exec('setCode', file.content);
-            ui._save_state();
+            ui._trigger('bufferCreated', {buffer: nbf});
         }
         if (file.path) {
+            console.log('fp', file.path);
             ui._guess_parser(ui._get_file_extension(file.path));
         }
-        ui.updateBufferList();
-
-
     },
 
     // Create a new untitled/unsaved file
     enew: function() {
         var ui = this;
-        var obf = ui._active_editor.data('buffer');
+        var obf = ui.buffers.getFocused();
         var nbf = ui.buffers.create();
 
         // Replacing an open buffer, save its state first
@@ -281,20 +85,31 @@ $.ui.rayEditorCommands = {
             ui._save_state();
         }
         
-        nbf.file = {path: 'Untitled'};
-        ui._active_editor.data('buffer', nbf);
-        ui._save_state();
         ui.exec('setCode', '');
-        ui.updateBufferList();
+        
+        nbf.file = {path: false};
+        ui.buffers.focus(nbf);
+        console.log('focus: ', nbf);
+        ui._trigger('bufferCreated', {buffer: nbf});
     },
 
     // Delete buffer
     bd: function(b) {
+        var ui = this;
+        var buff = b || ui.buffers.getFocused();
+        if (b.modified) {
+            if (confirm('The buffer has changed since it was opened, click "OK" to close without saving.')) {
+                console.log('flush change..');
+                ui.exec('setCode', '');
+            }
+            else {
+                console.log('cancel');
+            }
+        }
+        else {
+            ui.exec('setCode', '');
+        }
     },
-    // Next buffer
-    bn: function() {},
-    // Previous buffer
-    bp: function() {},
     // Write buffer
     w: function(ws) {},
     ls: function() {
@@ -304,8 +119,8 @@ $.ui.rayEditorCommands = {
     // Execute a CodeMirror command on the active editor
     exec: function(method, args) {
         var ui = this;
-        if (ui._active_editor) {
-            var ed = ui._active_editor.data('mirror');
+        if (ui.dom.editor) {
+            var ed = ui.dom.editor.data('mirror');
             try {
                 return ed[method](args);
             }
@@ -327,7 +142,7 @@ $.ui.rayEditorCommands = {
     undo: function(e) { 
         var ui = this;
         if (ui.exec('historySize').undo === 0) {
-            var bf = ui._active_editor.data('buffer');
+            var bf = ui.buffer.getFocused();
             ui.buffers.set(bf, 'modified', false);
             ui._save_state();
         }
@@ -374,12 +189,20 @@ $.ui.rayEditorCommands = {
     
     setparser: function(parser){
         var ui = this;
-        ui.toolbar.setParser(parser);
-        ui.exec('setParser', parser);
+        var bf = ui.buffers.getFocused();
+        if (bf) {
+            ui.toolbar.setParser(parser);
+            ui.exec('setParser', parser);
+            bf.parser = parser;
+            ui._save_state();
+        }
     },
 };
 
-$.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
+// Editor Options
+
+$.ui.rayEditorOptions = { 
+
     options: {
         editor_path: "codemirror/js/",
         indentUnit: 4,
@@ -440,6 +263,9 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
                     {label: 'Save a copy', callback: function(){ console.log('save / copy'); }},  
                 ]}, 
             ],
+            ['close-buffer', 
+                {label: 'Close', id: 'close', icons: {primary: 'ui-icon-disk'}, callback: 'bd', disabled: false},
+            ],
             ['editing-options', 
                 {label: 'Undo', id: 'undo', icons: {primary: 'ui-icon-arrowreturn-1-w'}, callback: 'undo', disabled: true}, 
                 {label: 'Redo', id: 'redo', icons: {primary: 'ui-icon-arrowreturn-1-e'}, callback: 'redo', disabled: true}
@@ -465,7 +291,13 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
 //          'html':  { label: 'HTML+Django', parserfile: ["parsexml.js", "parsecss.js", "tokenizejavascript.js", "parsejavascript.js", "parsedjango.js", "parsehtmldjango.js"], 
 //                stylesheet: ["css/xmlcolors.css", "css/jscolors.css", "css/csscolors.css", "css/djangocolors.css"] },
         }
-    },
+    }
+};
+
+$.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, 
+                                        $.ui.rayEditorOptions, 
+                                        $.ui.rayEditorCommands, {
+
 
     _create: function() {
         var ui = this;
@@ -475,14 +307,8 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
             editor:  $('<div id="ui-rayMirrorEditor-editor-wrapper" />'),
         };
 
-        ui.options.path = ui.options.media_path + ui.options.editor_path;
-
-        //ui.options = $.extend($.ui.rayMirrorEditor.defaults, ui.options); // What the ?!
-        ui.buffers = new rayBufferManager();
-        
-        //ui._setup_layout();
-        
-        ui._active_editor = ui.dom.editor;
+        ui.buffers          = new rayBufferManager();
+        ui.options.path     = ui.options.media_path + ui.options.editor_path;
 
         // Setup toolbar 
         ui.toolbar = new rayToolbarManager(ui.dom.toolbar.appendTo(ui.dom.wrapper));
@@ -493,53 +319,70 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
             ui.setparser($(':selected', this).data('magic').parser);
         });
 
-        // Setup known file types that should be handled
-        // with  rayMirrorEditor
+        // Setup known file types that should be handled with  rayMirrorEditor
         $.each(ui.options.magic, function (i, m){
             ui.element.ray('set_mime_type', {extension: i, type: this.widgetName, label: m.label, callback: 'file_open'});
         });
 
-        // File content has been loaded, process it
-        ui.element.bind('contentLoaded', function (e){
-            ui.e(e.originalEvent.data);
-            ui.toolbar.get_button(['undo', 'redo','save','save-menu']).button('option', 'disabled', false);
-        });
 
-        ui.element.bind('editorFocus', function(){
-            ui.dom.wrapper.addClass('focus');
-        }).bind('editorBlur', function(){
-            ui.dom.wrapper.removeClass('focus');
-        });
-
-        ui.options = $.extend(ui.options, {
-            cursorActivity: function() {
-                ui.toolbar.cursorinfo([ui.exec('currentLine'), ui.exec('cursorPosition').character].join(','));
-                ui._trigger('cursorActivity');
+        ui.element
+            .bind('editorFocus',   function(){ ui.dom.wrapper.addClass('focus'); })
+            .bind('editorBlur',    function(){ ui.dom.wrapper.removeClass('focus');})
+            .bind('editorChanged', function(){ 
+                console.log('xx', ui.buffers.getFocused())
+                ui._save_state();
+                // need to be called to add the " [+]" if the buffer is modified
+                ui._set_toolbar_title();
+            })
+            .bind('editorInitialized',  function() {
+                ui._guess_parser();
+                ui.buffers.focus(ui.buffers.create());
+                ui._save_state();
+                ui.updateBufferList();
+            })
+            .bind('bufferOpened',  function(e) {
+                var d = e.originalEvent.data
+                ui._save_state();
+                ui.updateBufferList();
+                ui._set_toolbar_title(d.buffer);
+            })
+            .bind('bufferCreated', function(e) {
+                var d = e.originalEvent.data
+                ui._save_state();
+                ui.updateBufferList();
+                ui._set_toolbar_title(d.buffer);
+            })
+            .bind('cursorActivity', function(e) {
+                var d = e.originalEvent.data
+                ui.toolbar.cursorinfo([d.currentLine, d.cursorPosition.character].join(','));
                 // All the rest below is a kind of hack to workaround the 
                 // editor's change delay which makes it hard to fire an event
                 // at a precise moment without an annoying lag. 
-                var bf = ui._active_editor.data('buffer');
-                if (!bf.modified) {
+                var bf = ui.buffers.getFocused();
+                if (bf && !bf.modified) {
                     bf.updateContent(ui.exec('getCode'));
                     if (bf.modified) {
+                        ui.toolbar.get_button(['undo', 'redo']).button('option', 'disabled', false);
                         ui._save_state();
                     }
                 }
-            },
+            })
+            // File content has been loaded, process it
+            .bind('contentLoaded', function (e){
+                ui.e(e.originalEvent.data);
+            });
 
-            onChange: function() {
-                ui._save_state();
-                ui._trigger('editorChanged');
+        ui.options = $.extend(ui.options, {
+            cursorActivity: function() {
+                ui._trigger('cursorActivity', {
+                    currentLine: ui.exec('currentLine'), 
+                    cursorPosition: ui.exec('cursorPosition')
+                });
             },
-
-            initCallback: function(editor) {
-                ui._guess_parser();
-                var new_buffer = ui.buffers.create();
-                ui.buffers.focus(new_buffer);
-                ui.toolbar.title("Untitled");
-                ui.updateBufferList();
-                ui._trigger('editorInitialized');
-            }
+            onChange: function() { 
+                ui._trigger('editorChanged'); 
+            },
+            initCallback: function(editor) { ui._trigger('editorInitialized'); }
         });
         
         ui.dom.wrapper.css('left', ($('body').rayFilebrowser('isVisible') ? 338: 0));
@@ -565,8 +408,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
         var heightGap = firstRepaint && 66 || 58;
         var widthGap  = firstRepaint && 2 || 0;
         ui.dom.wrapper.find('.CodeMirror-wrapping').height(window.innerHeight - 67);
-        //ui.dom.wrapper.find('.CodeMirror-wrapping')
-        //    .height(window.innerHeight - heightGap);
     },
     
     // Setup an editor inside a given HTML node
@@ -583,23 +424,49 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase, $.ui.rayEditorCommands, {
         return parent.data({editor: ed, mirror: mi });
     },
 
-    _save_state: function() {
+    /* Saves the state of a buffer.
+     * 
+     * The first step is to get the current code in the editor with getCode
+     * and feed it to buffer.updateContent()
+     * 
+     * if the buffer is not marked as modified updateContent will
+     * compare buffer.currentContent with the feeded content and 
+     * set the modified property accordingly.
+     *
+     * */
+
+    _save_state: function(force) {
         var ui = this;
-        var bf = ui._active_editor.data('buffer');
-        var nc = ui.exec('getCode');
+        var bf = ui.buffers.getFocused();
+        console.log('SAVE STATE: ', ui.buffers.all());
+        console.log(bf);
         if (bf) {
+            console.log('saving state..', bf);
+            var nc = ui.exec('getCode');
             bf.updateContent(nc);
 
             // TODO: Does not work :| + should remember text selection
             //bf.currentLine = ui.exec('currentLine');
             //bf.cursorPos = ui.exec('cursorPosition').character;
-
-            var title = bf.file.path;
-            if (bf.modified) {
-                title = title + ' [+]';
-            }
-            ui.toolbar.title(title.split(':')[1]);
         }
+    },
+
+    _set_toolbar_title: function(buffer) {
+        var ui = this;
+        var bf = buffer || ui.buffers.getFocused();
+        var title = bf.file && bf.file.path || false;
+        if (title) {
+            title = title.split(':')[1];
+        }
+        else {
+            title = 'Untitled';
+        }
+        if (bf.modified) {
+            title = title + ' [+]';
+        }
+        ui.toolbar.title(title);
+        console.log('setting toolbar title: ', bf);
+        return title;
     },
 
 
