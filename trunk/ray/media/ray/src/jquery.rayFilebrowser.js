@@ -145,9 +145,10 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
             rs   = e.originalEvent.data.content;
             if (rs) {
                 ui._datasource = rs;
-                ui._callback('redraw');
+                ui._redraw();
             }
         });
+
         ui._trigger('dirOpen', { path: '?path=/' });
 
         ui.element 
@@ -303,7 +304,12 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
             if (x.hasOwnProperty) {
                 var buffer = buffers[x];
                 var label = ui._get_display_filename(buffer);
-                var ext = buffer.file && ui._get_file_extension(buffer.file.path) || 'txt';
+                if (buffer.file && buffer.file.path) {
+                    var ext = ui._get_file_extension(buffer.file.path) || 'txt';
+                }
+                else {
+                    var ext = 'txt';
+                }
                 out.push('<li><a href="#bufferopen::'+ buffer.id +'" class="file '+ ext +'">'+ label +'</a></li>')
             }
         }

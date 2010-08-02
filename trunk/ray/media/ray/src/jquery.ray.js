@@ -20,34 +20,15 @@ $.plugin = function(namespace, instance) {
 
 $.ui.rayBase = {
     
-    /*  Mixes tightly and loosely coupled patterns for
-     *  greater interpolability between ray plugins. 
-     *
-     *  Ex:
-     *  -- widget --
-     *  _change: function() {
-     *      console.log('I will get called first');
-     *  }
-     *  -- /widget --
-     *  or 
-     *  -- anywhere --
-     *  ui.element.bind('changewidgetname', function(e, data){
-     *      console.log('I will get called in second');
-     *  });
-     *  -- /anywhere --
-     *
-     *  ui._callback('change', [data]);
-     *
-     * */
-    _callback: function(cb, data) {
+    _bind_events: function(events){
         var ui = this;
-        var callback = ui['_'+cb];
-        if (callback && $.isFunction(callback)) {
-            callback.apply(ui, data || []);
+        for (var ev in events) {
+            if (ev.hasOwnProperty) {
+                ui.element.bind(ev, events[ev]);
+            }
         }
-        ui._trigger(ui.widgetName.toLowerCase() + cb, 0, [cb +' test'])
     },
-
+    
     /* Initialiaze all plugins. This can be confusing at first
      * since it's almost recursive .. ray has plugins like rayFilebrowser,
      * rayWorkspace and such .. but plugins themselves can have plugins
@@ -75,9 +56,12 @@ $.ui.rayBase = {
             }
         }
     },
-
+    
     /* Works like $.each but apply the callback method
-     * to for each plugin with it as context.
+     * to for each plugins. The callback method will
+     * be called with the plugin name as first argument
+     * and true or false as second argument to indicate
+     * if the plugin is "lazy" or not.
      * */
     _plugins_call: function (method) {
         var ui = this;
@@ -220,18 +204,44 @@ $.ui.rayBase = {
         return tokens[tokens.length-1] || false;
     },
 
+    /* This is a trigger mechanism to allow plugins to
+     * dispatch events
+     *
+     * For example;
+     *
+     * $.widget('ui.rayMyPlugin', {
+     *  _create: function(){
+     *      ui._trigger('redraw');
+     *  },
+     * });
+     *
+     * $.widget('ui.rayMyOtherPlugin', {
+     *  _create: function(){
+     *      ui.element.bind('redraw', function(){
+     *          alert('I will get called..');
+     *      });
+     *  }
+     * });
+     *
+     *
+     * */
+
     _trigger: function(eventName, data) {      
         var ui = this;
+        var cb = ui['_'+eventName];
+        
+        //if (ui.element.ray('option', 'debug')) {
+            //ui._log(eventName, data || false);
+        //}
 
-        if (ui.element.ray('option', 'debug')) {
-            ui._log(eventName, data || false);
+        console.log(eventName, data || false);
+        // Tighly coupled
+        if (cb && $.isFunction(cb)) {
+            cb.apply(ui, data || []);
         }
-        if (data) {
-            ui.element.trigger($.Event({type: eventName, data: data}));
-        }
-        else {
-            ui.element.trigger(eventName);
-        }
+
+        // Loosely coupled
+        ui.element.trigger(data && $.Event({type: eventName, data: data}) || eventName);
     },
 
     _log: function() {}
@@ -280,7 +290,7 @@ $.widget('ui.ray', $.extend($.ui.rayBase, {
 
 
     /* Request a directory listing to the backend and
-     * triger 'dirOpened' event with result as event.data
+     * trigger 'dirOpened' event with result as event.data
      * */
 
     dir_list: function(dir) {
