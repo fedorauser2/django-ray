@@ -20,15 +20,6 @@ $.plugin = function(namespace, instance) {
 
 $.ui.rayBase = {
     
-    _bind_events: function(events){
-        var ui = this;
-        for (var ev in events) {
-            if (ev.hasOwnProperty) {
-                ui.element.bind(ev, events[ev]);
-            }
-        }
-    },
-    
     /* Initialiaze all plugins. This can be confusing at first
      * since it's almost recursive .. ray has plugins like rayFilebrowser,
      * rayWorkspace and such .. but plugins themselves can have plugins
@@ -345,9 +336,20 @@ $.widget('ui.ray', $.extend($.ui.rayBase, {
     },
 
     destroy: function () {
-        ui.element.rayWorkspace('destroy').rayFilebrowser('destroy');
+        ui._plugins_call(function(plugin){
+            ui.element[plugin]('destroy');
+        });
         $.widget.prototype.destroy.apply(this, arguments);
     }
+    
+//  _bind_events: function(events){
+//      var ui = this;
+//      for (var ev in events) {
+//          if (ev.hasOwnProperty) {
+//              ui.element.bind(ev, events[ev]);
+//          }
+//      }
+//  },
 }));
 
 

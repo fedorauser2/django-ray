@@ -79,17 +79,14 @@ $.ui.rayEditorCommands = {
         var ui = this;
         var obf = ui.buffers.getFocused();
         var nbf = ui.buffers.create();
-
         // Replacing an open buffer, save its state first
         if (obf) {
             ui._save_state();
         }
-        
         ui.exec('setCode', '');
-        
         nbf.file = {path: false};
         ui.buffers.focus(nbf);
-        console.log('focus: ', nbf);
+        //console.log('focus: ', nbf);
         ui._trigger('bufferCreated', {buffer: nbf});
     },
 
@@ -336,9 +333,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
             })
             .bind('editorInitialized',  function() {
                 ui._guess_parser();
-                ui.buffers.focus(ui.buffers.create());
-                ui._save_state();
-                ui.updateBufferList();
+                ui.enew();
             })
             .bind('bufferOpened',  function(e) {
                 var d = e.originalEvent.data
@@ -438,10 +433,8 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
     _save_state: function(force) {
         var ui = this;
         var bf = ui.buffers.getFocused();
-        console.log('SAVE STATE: ', ui.buffers.all());
-        console.log(bf);
         if (bf) {
-            console.log('saving state..', bf);
+            console.log('SAVING STATE..', bf);
             var nc = ui.exec('getCode');
             bf.updateContent(nc);
 
