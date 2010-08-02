@@ -25,6 +25,7 @@
 }
 .ui-ray-filebrowser-wrapper.ui-tabs .ui-tabs-panel {
     padding:0;
+    overflow-y:auto;
 }
 
 
