@@ -91,24 +91,36 @@ $.ui.rayEditorCommands = {
     },
 
     // Delete buffer
-    bd: function(b) {
+    bd: function() {
         var ui = this;
-        var buff = b || ui.buffers.getFocused();
-        if (b.modified) {
-            if (confirm('The buffer has changed since it was opened, click "OK" to close without saving.')) {
-                console.log('flush change..');
-                ui.exec('setCode', '');
+        var buff = ui.buffers.getFocused();
+        if (buff) {
+            if (buff.modified) {
+                if (confirm('The buffer has changed since it was opened, click "OK" to close without saving.')) {
+                    buff.destroy();
+                    ui.exec('setCode', '');
+                    ui._trigger('bufferDeleted')
+                }
+                else {
+                    console.log('cancelled');
+                }
             }
             else {
-                console.log('cancel');
+                buff.destroy();
+                ui.exec('setCode', '');
+                ui._trigger('bufferDeleted')
             }
-        }
-        else {
-            ui.exec('setCode', '');
         }
     },
     // Write buffer
-    w: function(ws) {},
+    w: function() {
+        var ui   = this;
+        var buff = ui.buffers.getFocused();
+        if (buff) {
+            ui._trigger('fileSave', buff);
+            //ui.file_save(buff.file, buff.currentContent)
+        }
+    },
     ls: function() {
         //this._buffers_apply(console.log);
     },
@@ -253,7 +265,7 @@ $.ui.rayEditorOptions = {
                 ]}, 
             ],
             ['save-buffer', 
-                {label: 'Save',     id: 'save',     icons: {primary: 'ui-icon-disk'}, callback: 'save', disabled: true},
+                {label: 'Save',     id: 'save',     icons: {primary: 'ui-icon-disk'}, callback: 'w', disabled: true},
                 {text:  false,      id: 'save-menu', icons: {primary: 'ui-icon-triangle-1-s'}, disabled: true, menu: [
                     {label: 'Save and commit (SVN)', callback: function(){ console.log('save / commit '); }},  
                     {label: 'Save as', callback: function(){ console.log('save as'); }},  
@@ -347,6 +359,9 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
                 ui.updateBufferList();
                 ui._set_toolbar_title(d.buffer);
             })
+            .bind('bufferDeleted',  function(e) {
+                ui.updateBufferList();
+            })
             .bind('cursorActivity', function(e) {
                 var d = e.originalEvent.data
                 ui.toolbar.cursorinfo([d.currentLine, d.cursorPosition.character].join(','));
@@ -357,7 +372,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
                 if (bf && !bf.modified) {
                     bf.updateContent(ui.exec('getCode'));
                     if (bf.modified) {
-                        ui.toolbar.get_button(['undo', 'redo']).button('option', 'disabled', false);
+                        ui.toolbar.get_button(['undo', 'redo', 'save']).button('option', 'disabled', false);
                         ui._save_state();
                     }
                 }

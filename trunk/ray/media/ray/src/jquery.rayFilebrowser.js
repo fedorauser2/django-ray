@@ -4,10 +4,7 @@ var RayFileBrowser = $.extend($.ui.rayBase, {
 
     options: {
         hasFocus: false,
-        hidden: false,
-        change: function(e, data) {
-            console.log('test3', e, data);
-        },
+        hidden: false
     },
     
     isVisible: function() { return !this.options.hidden; },

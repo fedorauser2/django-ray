@@ -72,6 +72,21 @@ def ray_open(request):
         fd.close()
     return json_serve(out)
 
+def ray_save(request):
+    '''
+    Open a document on the server, update its content and save it.
+    '''
+    if 'path' in request.GET and request.POST:
+        path = get_secure_path(request.GET['path'])
+        try:
+            fd   = open(path, 'w')
+            fd.write(request.POST['content'])
+            fd.close()
+            out = {'status': 'success'}
+        except IOError:
+            out = {'status': 'error', 'message': 'Failed to open file for writing.'}
+    return json_serve(out)
+
 def get_secure_path(p):
     '''
     This method maps the resource index in the paths with their actual path

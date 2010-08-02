@@ -31,6 +31,7 @@ var rayBufferManager = function() {
             var i = bm._inc = bm._inc + 1;
             var update_buffer = function(nc) {
                 // compare only if necessary or forced
+                // TODO: this need some work..
                 if (!this.modified && this.currentContent) { 
                     this.modified = nc !== this.currentContent;
                 }
@@ -42,7 +43,10 @@ var rayBufferManager = function() {
                 modified: false,
                 parser: false,
                 currentContent: false,
-                updateContent: update_buffer
+                updateContent: update_buffer,
+                destroy: function() {
+                    delete(bm._buffers[this.id]);
+                }
             };
             bm._buffers[i] = b;
             return b;
