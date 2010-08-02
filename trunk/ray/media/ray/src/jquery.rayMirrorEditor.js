@@ -69,7 +69,6 @@ $.ui.rayEditorCommands = {
             ui._trigger('bufferCreated', {buffer: nbf});
         }
         if (file.path) {
-            console.log('fp', file.path);
             ui._guess_parser(ui._get_file_extension(file.path));
         }
     },
@@ -131,7 +130,12 @@ $.ui.rayEditorCommands = {
         if (ui.dom.editor) {
             var ed = ui.dom.editor.data('mirror');
             try {
-                return ed[method](args);
+                if ($.isArray(args)) {
+                    return ed[method].apply(this, args);
+                }
+                else {
+                    return ed[method](args);
+                }
             }
             catch(e) {
                 console.log('Editor error: Could not execute editor command "'+ method +'" (Exception: '+ e.message +') '+ e.fileName +':'+ e.lineNumber);
@@ -338,7 +342,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
             .bind('editorFocus',   function(){ ui.dom.wrapper.addClass('focus'); })
             .bind('editorBlur',    function(){ ui.dom.wrapper.removeClass('focus');})
             .bind('editorChanged', function(){ 
-                console.log('xx', ui.buffers.getFocused())
                 ui._save_state();
                 // need to be called to add the " [+]" if the buffer is modified
                 ui._set_toolbar_title();
@@ -346,18 +349,25 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
             .bind('editorInitialized',  function() {
                 ui._guess_parser();
                 ui.enew();
+                
+                $(ui.dom.editor.find('iframe').get(0).contentDocument)
+                    .bind('keyup', function(e){ 
+                          console.log('keyup', this, arguments); 
+                    });
             })
             .bind('bufferOpened',  function(e) {
                 var d = e.originalEvent.data
                 ui._save_state();
                 ui.updateBufferList();
                 ui._set_toolbar_title(d.buffer);
+                ui._enable_buttons(['re-indent', 'go-to-line']);
             })
             .bind('bufferCreated', function(e) {
                 var d = e.originalEvent.data
                 ui._save_state();
                 ui.updateBufferList();
                 ui._set_toolbar_title(d.buffer);
+                ui._enable_buttons(['re-indent', 'go-to-line']);
             })
             .bind('bufferDeleted',  function(e) {
                 ui.updateBufferList();
@@ -372,7 +382,7 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
                 if (bf && !bf.modified) {
                     bf.updateContent(ui.exec('getCode'));
                     if (bf.modified) {
-                        ui.toolbar.get_button(['undo', 'redo', 'save']).button('option', 'disabled', false);
+                        ui._enable_buttons(['undo', 'redo', 'save']);
                         ui._save_state();
                     }
                 }
@@ -401,7 +411,17 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
 
         ui.dom.editor.appendTo(ui.dom.wrapper);
         ui._setup_editor(ui.dom.editor);
+
+
         ui._repaint(true);
+    },
+
+    _disable_buttons: function(buttons) {
+        this.toolbar.get_button(buttons).button('option', 'disabled', false);
+    },
+
+    _enable_buttons: function(buttons) {
+        this.toolbar.get_button(buttons).button('option', 'disabled', false);
     },
 
     _guess_parser: function(ext) {
@@ -415,8 +435,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
     
     _repaint: function(firstRepaint) {
         var ui = this; 
-        var heightGap = firstRepaint && 66 || 58;
-        var widthGap  = firstRepaint && 2 || 0;
         ui.dom.wrapper.find('.CodeMirror-wrapping').height(window.innerHeight - 67);
     },
     
@@ -449,10 +467,8 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
         var ui = this;
         var bf = ui.buffers.getFocused();
         if (bf) {
-            console.log('SAVING STATE..', bf);
             var nc = ui.exec('getCode');
             bf.updateContent(nc);
-
             // TODO: Does not work :| + should remember text selection
             //bf.currentLine = ui.exec('currentLine');
             //bf.cursorPos = ui.exec('cursorPosition').character;
@@ -473,7 +489,6 @@ $.widget('ui.rayMirrorEditor', $.extend($.ui.rayBase,
             title = title + ' [+]';
         }
         ui.toolbar.title(title);
-        console.log('setting toolbar title: ', bf);
         return title;
     },
 
