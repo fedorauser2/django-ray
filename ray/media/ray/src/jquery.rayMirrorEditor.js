@@ -89,7 +89,7 @@ $.ui.rayEditorCommands = {
         ui._trigger('bufferCreated', {buffer: nbf});
     },
 
-    // Delete buffer
+    // Delete focused buffer
     bd: function() {
         var ui = this;
         var buff = ui.buffers.getFocused();
@@ -111,15 +111,16 @@ $.ui.rayEditorCommands = {
             }
         }
     },
+
     // Write buffer
     w: function() {
         var ui   = this;
         var buff = ui.buffers.getFocused();
         if (buff) {
             ui._trigger('fileSave', buff);
-            //ui.file_save(buff.file, buff.currentContent)
         }
     },
+
     ls: function() {
         //this._buffers_apply(console.log);
     },
@@ -190,6 +191,7 @@ $.ui.rayEditorCommands = {
             this.exec('setLineNumbers', true);
         }
         else {
+            this.exec('setLineNumbers', false);
           //this.mirror.wrapping.removeChild(this.mirror.lineNumbers);
           //this.mirror.wrapping.style.marginLeft = '';
           //this.mirror.lineNumbers = null;

@@ -322,6 +322,22 @@ $.widget('ui.ray', $.extend($.ui.rayBase, {
 
     file_save: function(buffer) {
         var ui = this;
+
+        if (!buffer.file.path) {
+            $('<div />').load('/ray/forms/file-path/', function(){
+                $(this).appendTo('body').dialog({
+                    width: 450,
+                    height: 200,                    
+                    resizable: false,
+                    modal: true,
+                    title: "Specify a file path/name"
+                });
+            });
+            alert('no path !')
+            return false;
+        
+        }
+
         $.post(ui.url('save/?path=', buffer.file.path), {
             content: buffer.currentContent
         }, function(rs, status){
