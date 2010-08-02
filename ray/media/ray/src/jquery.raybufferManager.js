@@ -31,7 +31,7 @@ var rayBufferManager = function() {
             var i = bm._inc = bm._inc + 1;
             var update_buffer = function(nc) {
                 // compare only if necessary or forced
-                if (!this.modified) { 
+                if (!this.modified && this.currentContent) { 
                     this.modified = nc !== this.currentContent;
                 }
                 this.currentContent = nc;
@@ -41,7 +41,7 @@ var rayBufferManager = function() {
                 file: f || false,
                 modified: false,
                 parser: false,
-                currentContent: f && f.content || false,
+                currentContent: false,
                 updateContent: update_buffer
             };
             bm._buffers[i] = b;
