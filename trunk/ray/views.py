@@ -115,7 +115,6 @@ def get_secure_path(p):
 
     n = re.compile(r'^/(\d+):', re.IGNORECASE)
     rs = n.search(p)
-    print 
     if rs:
         if p[-1:] == '/':
             p = settings.RAY_EDITABLE_DIRS[int(rs.groups()[0])] + "/".join(p.split('/')[2:-1])
@@ -158,50 +157,24 @@ def ray_browse(request):
         'dirs':  dirs,
         'files': files,
     }
-
     
     return json_serve(out)
 
-#   for p, d, f in walk(path, settings.EDITOR_IGNORE):
-#       print "-------------------------"
-#       print "%s" % p
-#       print "%s" % d
-#       print "%s" % f
-#       print "-------------------------"
-
-#       if p == settings.EDITABLE_TEMPLATE_DIR:
-#           for file in f:
-#               out.append({'path': os.path.join(p, file).replace(settings.EDITABLE_TEMPLATE_DIR, ''), 'basename': file, 'type': 'file'})
-#       else:
-#           out.append({'path': p.replace(settings.EDITABLE_TEMPLATE_DIR, ''), 'basename': os.path.basename(p), 'subdirs': d, 'files': f, 'type': (os.path.isdir(p) and 'dir' or 'file')})
-
-
-
-#       if os.path.isdir(p) and os.path.basename(p) not in settings.EDITOR_IGNORE:
-#           dirs = []
-#           for x in d:
-#               if x not in settings.EDITOR_IGNORE:
-#                   dirs.append(x)
-#           out.append({'path': p, 'subdirs': dirs, 'files': f, 'type': 'dir'})
-#       elif os.path.isfile(p) and os.path.basename(p) not in settings.EDITOR_IGNORE_FILES:
-#           out.append({'path': p, 'subdirs': d, 'files': f, 'type': 'file'})
-
-
-
-#   for dirname, dirnames, filenames in os.walk(path):
-#       for subdirname in dirnames:
-#           if subdirname not in settings.EDITOR_IGNORE_DIRS:
-#               out.append({'node': subdirname, 'dir': dirname, 'path': os.path.join(dirname, subdirname)})
-#       for filename in filenames:
-#           print " - %s" % filename
-#           if filename not in settings.EDITOR_IGNORE_FILES:
-#               out.append({'node': filename, 'dir': dirname})
+def ray_filesave_form(request):
+    '''
+    TODO: document
+    '''
+    dirs = []
+    x = 0
+    for d in settings.RAY_EDITABLE_DIRS:
+        dirs.append({'id': x, 'path': '%s/' % d.split('/')[-2:][0]})
+        x = x + 1
+    return render_to_response('ray/file-save.html', {'EDITABLE_DIRS': dirs})
 
 def ray_editor(request):
     '''
     TODO: document
     '''
-    print "+++++++=test"
     return render_to_response('ray/editor.html')
 
 def ray_layout(request):
