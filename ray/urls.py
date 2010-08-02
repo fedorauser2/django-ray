@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^layout/$',       'ray.views.ray_layout',     name='ray-layout'),
     url(r'^browse/$',       'ray.views.ray_browse',     name='ray-browse'),
     url(r'^open/$',         'ray.views.ray_open',       name='ray-open'),
+    url(r'^save/$',         'ray.views.ray_save',       name='ray-save'),
     url(r'^context/$',      'ray.views.ray_context',    name='ray-context'),
     url(r'^svn/log/$',      'ray.views.ray_svn_log',    name='ray-svn-log'),
     # TODO: find a less hacking way ..

@@ -30,7 +30,6 @@ $.ui.rayBase = {
         var widget, plugin, wn, wdg, opt;
         wn = widgetName || ui.widgetName;
         widget = jQuery[ui.namespace][wn];
-        //console.log('plugin_init', widget.plugins);
         for (var x in widget.plugins) {
             plugin = widget.plugins[x];
             opt = $.extend((this.options[plugin] || {}), {
@@ -225,7 +224,7 @@ $.ui.rayBase = {
             //ui._log(eventName, data || false);
         //}
 
-        console.log(eventName, data || false);
+        //console.log(eventName, data || false);
         // Tighly coupled
         if (cb && $.isFunction(cb)) {
             cb.apply(ui, data || []);
@@ -268,6 +267,7 @@ $.widget('ui.ray', $.extend($.ui.rayBase, {
         // Bind core events
         ui.element
             .bind('fileOpen.ray', function(e){ ui.file_open(e.originalEvent.data);  })
+            .bind('fileSave.ray', function(e){ ui.file_save(e.originalEvent.data);  })
             .bind('dirOpen.ray',  function(e){ ui.dir_list(e.originalEvent.data); })
             .bind('redraw.ray',   function(e){ ui.redraw(); });
 
@@ -305,14 +305,36 @@ $.widget('ui.ray', $.extend($.ui.rayBase, {
      * */
     file_open: function(file) {
         var ui   = this;
-        var base = 'open/?path=';
-        var url  = ui.options.base_url + base + file.path;
-        $.getJSON(url, function(rs, status){
+        $.getJSON(ui.url('open/?path=', file.path), function(rs, status){
             if (status == 'success') {
                 ui._trigger('contentLoaded', { path: file.path, content: rs.content });
                   if (file.element) {
                       file.element.addClass('opened'); 
                   }
+            }
+        });
+    },
+
+    url: function() {
+        var ui = this;
+        return ui.options.base_url + $.makeArray(arguments).join('');
+    },
+
+    file_save: function(buffer) {
+        var ui = this;
+        $.post(ui.url('save/?path=', buffer.file.path), {
+            content: buffer.currentContent
+        }, function(rs, status){
+            if (status == 'success') {
+                if (rs.status == 'success') {
+                    ui._trigger('fileSaved', buffer);
+                }
+                else {
+                    console.log('Server error.. ', rs.message)
+                }
+            }
+            else {
+                console.log('Request error.. ', status)
             }
         });
     },
