@@ -5,7 +5,8 @@ sys.path.append('../contrib/')
 
 PROJECT_PATH   = os.path.dirname(os.path.abspath(__file__))
 
-DEBUG = True
+DEV = True
+DEBUG = DEV
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -40,7 +41,8 @@ USE_I18N = False
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join('../contrib/ray/media/')
+MEDIA_ROOT = os.path.join('media/')
+ADMIN_MEDIA_ROOT = os.path.join(PROJECT_PATH, '../contrib/grappelli/media/')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -60,6 +62,14 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
 #     'django.template.loaders.eggs.load_template_source',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.core.context_processors.auth", 
+    "django.core.context_processors.i18n", 
+    "django.core.context_processors.media", 
+    "django.core.context_processors.request", 
+    "grappelli.context_processors.admin_template_path",
 )
 
 MIDDLEWARE_CLASSES = (
