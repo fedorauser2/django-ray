@@ -219,7 +219,7 @@ $.ui.rayEditorCommands = {
 $.ui.rayEditorOptions = { 
 
     options: {
-        editor_path: "codemirror/js/",
+        editor_path: "ray/codemirror/js/",
         indentUnit: 4,
         undoDepth: 50,
         undoDelay: 600,
@@ -249,14 +249,14 @@ $.ui.rayEditorOptions = {
             "../ray/color-schemes/evening/scheme.css",
             */
             // TODO: fix hardcoded paths ..
-            "../../media/codemirror/css/xmlcolors.css", 
-            "../../media/codemirror/css/csscolors.css", 
-            "../../media/codemirror/css/jscolors.css", 
-            "../../media/codemirror/contrib/sql/css/sqlcolors.css", 
-            "../../media/codemirror/contrib/php/css/phpcolors.css",
-            "../../media/codemirror/contrib/python/css/pythoncolors.css", 
-            "../../media/codemirror/contrib/diff/css/diffcolors.css", 
-            "../../media/codemirror/contrib/django/css/djangocolors.css" 
+            "../../media/ray/codemirror/css/xmlcolors.css", 
+            "../../media/ray/codemirror/css/csscolors.css", 
+            "../../media/ray/codemirror/css/jscolors.css", 
+            "../../media/ray/codemirror/contrib/sql/css/sqlcolors.css", 
+            "../../media/ray/codemirror/contrib/php/css/phpcolors.css",
+            "../../media/ray/codemirror/contrib/python/css/pythoncolors.css", 
+            "../../media/ray/codemirror/contrib/diff/css/diffcolors.css", 
+            "../../media/ray/codemirror/contrib/django/css/djangocolors.css" 
         ],
         buttons: [
             ['file-browser',
